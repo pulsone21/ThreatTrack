@@ -1,0 +1,1 @@
+DELETE FROM incident_types WHERE id = ?

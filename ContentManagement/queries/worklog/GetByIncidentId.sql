@@ -1,0 +1,1 @@
+SELECT * FROM worklogs WHERE worklogs.incidentId = ?;

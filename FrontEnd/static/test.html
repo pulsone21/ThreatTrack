@@ -1,0 +1,253 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ThreatTrack</title>
+        <link rel="stylesheet" href="assets/default.css" type="text/css">
+        <link rel="icon" href="assets/Logo.svg">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,500;0,700;0,900;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;1,400&display=swap" rel="stylesheet">
+        <script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="logo-section vertical-container">
+                <a class="clickableEl" title="Home" href="/"><img src="assets/Logo.svg" alt="Logo Goes here"></a>
+                <h3 class="font-h3">ThreatTrack</h3>
+            </div>
+            <div id="searchBar">
+                <input type="text" placeholder="Search for something...">
+            </div>
+            <div class="vertical-container actionBar">
+                <button class="clickableEl" title="Dashboard" hx-get="/dashboard/" hx-target="#contentBody" ><img src="assets/dashboard.svg" alt="Dashboard"></img></button>
+                <button class="clickableEl" title="Incidents" hx-get="/incidentTable/" hx-target="#contentBody"><img src="assets/Incidents.svg" alt="Incidents"></img></button>
+                <button class="clickableEl" title="Indicators" hx-get="/indicatorTable/" hx-target="#contentBody"><img src="assets/Indicator.svg" alt="IOCs"></img></button>
+                <button class="clickableEl" title="Settings" hx-get="/settings/" hx-target="#contentBody"><img src="assets/settings.svg" alt="Settings"></img></button>
+                <button class="clickableEl" title="LogOut" hx-get="/logout" hx-target="#contentBody"><img src="assets/logout.svg" alt="Logout"></img></button>
+            </div>
+        </nav>
+        <div id="contentBody">
+            <div class="inc-grid font-body">
+                <div class="inc-grid-el inc-header">
+                    <span class="font-h3">Indicator</span>
+                    <div class="vertical-container" style="width:25%">
+                        <button class="btn">Do Something</button>
+                        <button class="btn">Somehting other</button>
+                        <button class="btn">go a bit nuts</button>
+                    </div>
+                </div>
+                <div class="inc-grid-el inc-main-info">
+                    <ul>
+                        <li>Description</li>
+                        <li>status</li>
+                        <li>Type</li>
+                    </ul>
+                </div>
+                <div class="inc-grid-el inc-sec-info">
+                    <ul>
+                        <li>Created At</li>
+                        <li>last Updated At</li>
+                        <li>Closed at</li>
+                    </ul>
+                 </div>
+                <div class="inc-grid-el inc-activities" style="border: None !important; background:none !important;"> 
+                    <p class="font-h4">Activities</p>
+                    <div class="timeline">
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est. Laborum in elit veniam consequat exercitation est. Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est. Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">    
+                            <div>
+                                <p class="font-body">User</p>
+                                <p class="font-smaller font-col-info" >commented</p>
+                            </div>
+                            <div class="comment-block" >
+                                <p>Do culpa ad eu consectetur eiusmod exercitation do eu ut. Ea ad ea magna adipisicing mollit eiusmod velit. Commodo aliquip sit nisi sint et Lorem nisi pariatur laboris dolore id sunt minim.</p>    
+                                <buttom class="btn" > <img src="./assets/reaction.svg" title="add reaction" alt="React"> </button>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                        <div class="vertical-container timeline-el font-small">
+                           
+                            <div>
+                                <p style="margin: 0px !important" class="font-body">User</p>
+                                <p class="font-smaller">Laborum in elit veniam consequat exercitation est. Laborum in elit veniam consequat exercitation est.</p>
+                            </div>
+                            <hr>
+                            <p>date</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="inc-grid-el inc-worklogs"> 
+                    <p class="font-h4">Worklogs</p>
+                    <div>
+                        <p>Most Recent</p>
+                        <ul class="worklog-list">
+                            <li>
+                                <div>
+                                    <div class="vertical-container">
+                                        <p class="font-h4">User</p>
+                                        <p class="font-smaller font-col-info">20/12/2023 10:50</p>
+                                    </div>
+                                    <p class="font-small">Id amet elit ullamco nisi ipsum consequat sint consectetur. Id sit est sint aliquip dolore. Consequat nisi ad eiusmod Lorem officia aliqua aute consectetur excepteur ea. Minim aliquip ad officia id deserunt eu cillum esse.</p>
+                                </div>
+                                <hr>
+                            </li>
+                            <li>
+                                <div>
+                                    <div class="vertical-container">
+                                        <p class="font-h4">User</p>
+                                        <p class="font-smaller font-col-info">20/12/2023 10:50</p>
+                                    </div>
+                                    <p class="font-small">Id amet elit ullamco nisi ipsum consequat sint consectetur. Id sit est sint aliquip dolore. Consequat nisi ad eiusmod Lorem officia aliqua aute consectetur excepteur ea. Minim aliquip ad officia id deserunt eu cillum esse.</p>
+                                </div>
+                                <hr>
+                            </li>
+                            <li>
+                                <div>
+                                    <div class="vertical-container">
+                                        <p class="font-h4">User</p>
+                                        <p class="font-smaller font-col-info">20/12/2023 10:50</p>
+                                    </div>
+                                    <p class="font-small">Id sit est sint aliquip dolore. Consequat nisi ad eiusmod Lorem officia aliqua aute consectetur excepteur ea. Minim aliquip ad officia id deserunt eu cillum esse.</p>
+                                </div>
+                                <hr>
+                            </li>
+                            <li>
+                                <div>
+                                    <div class="vertical-container">
+                                        <p class="font-h4">User</p>
+                                        <p class="font-smaller font-col-info">20/12/2023 10:50</p>
+                                    </div>
+                                    <p class="font-small">Id amet elit ullamco nisi ipsum consequat sint consectetur. Consequat nisi ad eiusmod Lorem officia aliqua aute consectetur excepteur ea. Minim aliquip ad officia id deserunt eu cillum esse.</p>
+                                </div>
+                                <hr>
+                            </li>
+                            <li>
+                                <div>
+                                    <div class="vertical-container">
+                                        <p class="font-h4">User</p>
+                                        <p class="font-smaller font-col-info">20/12/2023 10:50</p>
+                                    </div>
+                                    <p class="font-small">Id amet elit ullamco nisi ipsum consequat sint consectetur. Id sit est sint aliquip dolore. Consequat nisi ad eiusmod Lorem officia aliqua aute consectetur excepteur ea.</p>
+                                </div>
+                                <hr>
+                            </li>
+                            <li>
+                                <div>
+                                    <div class="vertical-container">
+                                        <p class="font-h4">User</p>
+                                        <p class="font-smaller font-col-info">20/12/2023 10:50</p>
+                                    </div>
+                                    <p class="font-small">Id amet elit ullamco nisi ipsum consequat sint consectetur. Id sit est sint aliquip dolore. Minim aliquip ad officia id deserunt eu cillum esse.</p>
+                                </div>
+                                <hr>
+                            </li>
+                        </ul>
+                    </div>
+                        <div>
+                        <div class="editor-container">
+                            <div style="margin: 5px 5px 0px 5px;" class="vertical-container">
+                                <button class="btn">Bold</button>
+                                <button class="btn">Underline</button>
+                                <button class="btn">Italic</button>
+                                <button class="btn">Bold</button>
+                                <button class="btn">Underline</button>
+                                <button class="btn">Italic</button>
+                                <button class="btn">Bold</button>
+                                <button class="btn">Underline</button>
+                                <button class="btn">Italic</button>
+                            </div>
+                            <hr>
+                            <textarea name="worklog" id="worklog_editor" cols="30" rows="5"></textarea>
+                            <div style="margin-top:15px ;">
+                                <button class="btn">Create a new one</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="inc-grid-el inc-placeholder"> Customer Infos </div>
+                <div class="inc-grid-el inc-user-overview vertical-container">   
+                    <div >
+                        <span class="font-h4"> Owner</span>
+                        <ul>
+                            <li>name</li>
+                            <li>email</li>
+                            <li>Telefone</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="font-h4">Contributors</span>
+                        <ul>
+                            <li>Contro 1</li>
+                            <li>Contro 2</li>
+                            <li>Contro 2</li>
+                        </ul>
+                    </div>
+                </div> 
+            </div>
+    </body>
+</html>

@@ -1,0 +1,761 @@
+{
+	"info": {
+		"_postman_id": "b79b5fce-fae6-4a09-b77b-6278c7d07817",
+		"name": "ThreatTrack",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27136045"
+	},
+	"item": [
+		{
+			"name": "Incidents",
+			"item": [
+				{
+					"name": "GetAllIncidents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incident",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incident"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetIncidentByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incident/{{inc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incident",
+								"{{inc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateIncident",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData;",
+									"try {",
+									"    jsonData = JSON.parse(pm.response.text());",
+									"} catch (error) {",
+									"    console.log(\"Invalid JSON response:\", pm.response.text());",
+									"}",
+									"",
+									"pm.collectionVariables.set(\"inc_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"IncidentOne\",\n    \"Severity\": 1,\n    \"Type\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/incident",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incident"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateIncidentByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incident/{{inc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incident",
+								"{{inc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteIncidentByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incident/{{inc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incident",
+								"{{inc_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "IncidentSeverity",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incidentseverity/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidentseverity",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incidentseverity/{{inc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidentseverity",
+								"{{inc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(pm.response.body)",
+									"pm.collectionVariables.set(\"incSev_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"IncidentOne\",\n    \"Severity\": 4\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/incidentseverity/{{inc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidentseverity",
+								"{{inc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incidentseverity/{{inc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidentseverity",
+								"{{inc_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "IncidentType",
+			"item": [
+				{
+					"name": "GetAllIncidentType",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incidenttype/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidenttype",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetIncidentByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incidenttype/{{incType_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidenttype",
+								"{{incType_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateIncidentType",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(pm.response.body)",
+									"pm.collectionVariables.set(\"incType_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"General\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/incidenttype/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidenttype",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteIncidentByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/incidenttype/{{incType_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"incidenttype",
+								"{{incType_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "iocs",
+			"item": [
+				{
+					"name": "GetAllIocs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ioc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ioc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetIocByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ioc/{{ioc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ioc",
+								"{{ioc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateIoc",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData;",
+									"try {",
+									"    jsonData = JSON.parse(pm.response.text());",
+									"} catch (error) {",
+									"    console.log(\"Invalid JSON response:\", pm.response.text());",
+									"}",
+									"",
+									"pm.collectionVariables.set(\"ioc_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"value\": \"youtube.com\",\n    \"iocType\": 0,\n    \"incidentIds\" : [\n        \"{{inc_id}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ioc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ioc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateIocByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ioc/{{ioc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ioc",
+								"{{ioc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteIocByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ioc/{{ioc_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ioc",
+								"{{ioc_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllRelations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ioc/relations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ioc",
+								"relations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "GetAllUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData;",
+									"try {",
+									"    jsonData = JSON.parse(pm.response.text());",
+									"} catch (error) {",
+									"    console.log(\"Invalid JSON response:\", pm.response.text());",
+									"}",
+									"",
+									"pm.collectionVariables.set(\"user_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"FirstName\": \"Jo\",\n    \"LastName\": \"Bo\",\n    \"Email\": \"test@test.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUserByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUserByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "worklogs",
+			"item": [
+				{
+					"name": "GetAllWorklogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/worklog",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"worklog"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetWorklogByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/worklog/{{work_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"worklog",
+								"{{work_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateWorklog",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData;",
+									"try {",
+									"    jsonData = JSON.parse(pm.response.text());",
+									"} catch (error) {",
+									"    console.log(\"Invalid JSON response:\", pm.response.text());",
+									"}",
+									"",
+									"pm.collectionVariables.set(\"work_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"WriterId\":  {{user_id}},\n    \"IncidentId\": {{inc_id}},\n    \"Content\": \"This is the first worklog entry\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/worklog",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"worklog"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateWorklogByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/worklog/{{work_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"worklog",
+								"{{work_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteWorklogByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/worklog/{{work_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"worklog",
+								"{{work_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "inc_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ioc_id",
+			"value": "90076c5c-8b1b-4d12-bfd1-610d0fac5704",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "work_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "incType_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "incSev_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
