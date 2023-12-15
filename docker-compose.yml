@@ -13,7 +13,9 @@ services:
           test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
           timeout: 30s
           retries: 10
-    
+    networks:
+      - backend
+
   backend:
     build: ./ContentManagement
     env_file:
@@ -23,6 +25,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - frontend
+      - backend
 
   frontend:
     build: ./frontend
@@ -32,4 +37,11 @@ services:
       - ${FRONTENDPORT}:${FRONTENDPORT}
     depends_on:
       - backend
+    networks:
+      - frontend
+      - backend
 
+networks:
+  backend:
+    internal: true
+  frontend:
