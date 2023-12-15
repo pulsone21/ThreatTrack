@@ -30,7 +30,7 @@ func (server *ApiServer) Run() {
 	dbPw := os.Getenv("MYSQLPW")
 	dbPort := os.Getenv("DBPORT")
 	dbIP := os.Getenv("DBIP")
-	fmt.Printf("DB_USER: %s, DB_PW: %s, DB_PORT: %s, DB_IP: %s\n", dbUsr, dbPw, dbIP)
+	fmt.Printf("DB_USER: %s, DB_PW: %s, DB_PORT: %s, DB_IP: %s\n", dbUsr, dbPw, dbPort, dbIP)
 	server.db = *setupDB(dbIP+":"+dbPort, dbUsr, dbPw, server)
 	fmt.Println(fmt.Sprintf("Starting Backend Server on https://localhost:%s", server.ListenAddr))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", server.ListenAddr), server))
