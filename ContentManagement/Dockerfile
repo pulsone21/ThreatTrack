@@ -5,6 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN go get
-RUN make build
+RUN go mod tidy
+RUN go build -o bin/backEnd
 
 ENTRYPOINT [ "/app/bin/backEnd" ]
