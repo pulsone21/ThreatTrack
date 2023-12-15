@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
-	"threat_track/frontend/gui"
+	"frontend/gui"
+	"os"
 )
 
 func main() {
 	fmt.Println("Setting up new Webserver")
-	server := gui.CreateServer("localhost:5051", "http://localhost:8080")
+	port := os.Getenv("FRONTENDPORT")
+	backendPort := os.Getenv("BACKENDPORT")
+	server := gui.CreateServer("localhost:"+port, "http://localhost:"+backendPort)
 	server.RunServer()
 }

@@ -1,15 +1,17 @@
 .PHONY: help
 
 build:
-	@go build -o bin/contentManagement
+	@go get
+	@go mod tidy
+	@go build -o bin/backEnd
 
 setup: build
 	@docker start ContentDB
 	@sleep 3
-	@./bin/contentManagement
+	@./bin/backEnd
 
 run: build
-	@./bin/contentManagement
+	@./bin/backEnd
 
 
 generate_data: 

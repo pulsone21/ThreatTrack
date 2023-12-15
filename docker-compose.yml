@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQLROOTPW}
+      MYSQL_USER: ${MYSQLUSER}
+      MYSQL_PASSWORD: ${MYSQLPW}
+      MYSQL_DATABASE: contentdb
+    ports:
+      - ${DBPORT}:3306
+    healthcheck:
+          test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+          timeout: 30s
+          retries: 10
+    
+  backend:
+    build: ./ContentManagement
+    env_file:
+      - .env
+    ports:
+      - ${BACKENDPORT}:${BACKENDPORT}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env
+    ports:
+      - ${FRONTENDPORT}:${FRONTENDPORT}
+    depends_on:
+      - backend
+

@@ -1,4 +1,4 @@
-module threat_track/frontend
+module frontend
 
 go 1.21.3
 

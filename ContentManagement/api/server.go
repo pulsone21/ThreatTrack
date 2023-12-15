@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -25,7 +26,11 @@ func NewServer(listenAddr string) *ApiServer {
 }
 
 func (server *ApiServer) Run() {
-	server.db = *setupDB("localhost:3306", "root", "root", server)
+	dbUsr := os.Getenv("MYSQLUSER")
+	dbPw := os.Getenv("MYSQLPW")
+	dbPort := os.Getenv("DBPORT")
+	fmt.Printf("DB_USER: %s, DB_PW: %s, DB_PORT: %s\n", dbUsr, dbPw, dbPort)
+	server.db = *setupDB("localhost:"+dbPort, dbUsr, dbPw, server)
 	fmt.Println(fmt.Sprintf("Starting Backend Server on https://localhost:%s", server.ListenAddr))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", server.ListenAddr), server))
 }
