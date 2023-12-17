@@ -12,13 +12,10 @@ services:
       - ${DB_PORT}:3306
     healthcheck:
           test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-          timeout: 1s
-          retries: 40
+          timeout: 30s
+          retries: 10
     networks:
       - backend
-    volumes:
-          - .docker/dump.sql:/docker-entrypoint-initdb.d/dump.sql
-          - ./database/db:/var/lib/mysql
 
   backend:
     container_name: Backend
