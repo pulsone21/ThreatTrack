@@ -16,6 +16,9 @@ run: build
 
 restart: start_db reset_db setup_db generate_data run
 
+test: start_db reset_db setup_db generate_data
+	@go test -run ^TestSuite$  -v ./tests
+
 start_db:
 	@echo "starting db"
 	@docker start ContentDB

@@ -9,6 +9,7 @@ import (
 )
 
 type DB struct {
+	Db          *sql.DB
 	IncidentApi IncidentApi
 	IocApi      IocApi
 	WorklogApi  WorklogApi
@@ -44,7 +45,7 @@ func setupDB(adress string, user string, pw string, s *ApiServer) *DB {
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
-
+	DB.Db = db
 	fmt.Println("Creating Stores")
 
 	CreateIncidentApi(db, s)

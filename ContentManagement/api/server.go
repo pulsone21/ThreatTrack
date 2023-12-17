@@ -12,25 +12,26 @@ import (
 
 type ApiServer struct {
 	*mux.Router
-	db DB
+	Db DB
 }
 
 type APIFunc func(http.ResponseWriter, *http.Request) error
 
 func NewServer() *ApiServer {
-	return &ApiServer{
-		Router: mux.NewRouter(),
-	}
-}
-
-func (server *ApiServer) Run() {
 	dbUsr := os.Getenv("MYSQLUSER")
 	dbPw := os.Getenv("MYSQLPW")
 	dbPort := os.Getenv("DB_PORT")
 	dbIP := os.Getenv("DB_ADRESS")
 	fmt.Printf("DB_USER: %s, DB_PW: %s, DB_PORT: %s, DB_IP: %s\n", dbUsr, dbPw, dbPort, dbIP)
-	server.db = *setupDB(dbIP+":"+dbPort, dbUsr, dbPw, server)
+	s := &ApiServer{
+		Router: mux.NewRouter(),
+	}
 
+	s.Db = *setupDB(dbIP+":"+dbPort, dbUsr, dbPw, s)
+	return s
+}
+
+func (server *ApiServer) Run() {
 	backendPort := os.Getenv("BACKEND_PORT")
 	fmt.Println(fmt.Sprintf("Starting Backend Server on https://localhost:%s", backendPort))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", backendPort), server))
