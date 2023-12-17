@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: DB
     image: mysql:latest
     restart: always
     environment:
@@ -8,7 +9,7 @@ services:
       MYSQL_PASSWORD: ${MYSQLPW}
       MYSQL_DATABASE: contentdb
     ports:
-      - ${DBPORT}:3306
+      - ${DB_PORT}:3306
     healthcheck:
           test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
           timeout: 30s
@@ -17,29 +18,33 @@ services:
       - backend
 
   backend:
+    container_name: Backend
     build: ./ContentManagement
     env_file:
       - .env
     ports:
-      - ${BACKENDPORT}:${BACKENDPORT}
+      - ${BACKEND_PORT}:${BACKEND_PORT}
     depends_on:
       db:
         condition: service_healthy
     networks:
       - frontend
       - backend
+    restart: on-failure
 
   frontend:
+    container_name: Frontend
     build: ./frontend
     env_file:
       - .env
     ports:
-      - ${FRONTENDPORT}:${FRONTENDPORT}
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     depends_on:
       - backend
     networks:
       - frontend
       - backend
+    restart: on-failure
 
 networks:
   backend:

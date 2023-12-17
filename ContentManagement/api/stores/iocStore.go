@@ -28,10 +28,10 @@ func (s *IocStore) createTables() {
 	if err := errors.Join(err1, err2, err3); err != nil {
 		panic(err.Error())
 	}
-	if _, err := s.DB.Exec(iocTable); err != nil {
+	if _, err := s.DB.Exec(iocType); err != nil {
 		panic(err.Error())
 	}
-	if _, err := s.DB.Exec(iocType); err != nil {
+	if _, err := s.DB.Exec(iocTable); err != nil {
 		panic(err.Error())
 	}
 	if _, err := s.DB.Exec(iocInc); err != nil {

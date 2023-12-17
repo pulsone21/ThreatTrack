@@ -27,10 +27,10 @@ func (s *IncidentStore) createTables() {
 	if err := errors.Join(err1, err2); err != nil {
 		panic(err.Error())
 	}
-	if _, err := s.DB.Exec(incTable); err != nil {
+	if _, err := s.DB.Exec(incType); err != nil {
 		panic(err.Error())
 	}
-	if _, err := s.DB.Exec(incType); err != nil {
+	if _, err := s.DB.Exec(incTable); err != nil {
 		panic(err.Error())
 	}
 }

@@ -1,5 +1,8 @@
 .PHONY: help
 
+include .env
+export
+
 build:
 	@go get
 	@go mod tidy

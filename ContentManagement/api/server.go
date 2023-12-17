@@ -12,28 +12,28 @@ import (
 
 type ApiServer struct {
 	*mux.Router
-	ListenAddr string
-	db         DB
+	db DB
 }
 
 type APIFunc func(http.ResponseWriter, *http.Request) error
 
-func NewServer(listenAddr string) *ApiServer {
+func NewServer() *ApiServer {
 	return &ApiServer{
-		Router:     mux.NewRouter(),
-		ListenAddr: listenAddr,
+		Router: mux.NewRouter(),
 	}
 }
 
 func (server *ApiServer) Run() {
 	dbUsr := os.Getenv("MYSQLUSER")
 	dbPw := os.Getenv("MYSQLPW")
-	dbPort := os.Getenv("DBPORT")
-	dbIP := os.Getenv("DBIP")
+	dbPort := os.Getenv("DB_PORT")
+	dbIP := os.Getenv("DB_ADRESS")
 	fmt.Printf("DB_USER: %s, DB_PW: %s, DB_PORT: %s, DB_IP: %s\n", dbUsr, dbPw, dbPort, dbIP)
 	server.db = *setupDB(dbIP+":"+dbPort, dbUsr, dbPw, server)
-	fmt.Println(fmt.Sprintf("Starting Backend Server on https://localhost:%s", server.ListenAddr))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", server.ListenAddr), server))
+
+	backendPort := os.Getenv("BACKEND_PORT")
+	fmt.Println(fmt.Sprintf("Starting Backend Server on https://localhost:%s", backendPort))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", backendPort), server))
 }
 
 type ApiError struct {

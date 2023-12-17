@@ -45,7 +45,7 @@ func (iH *IncidentHandler) createHandles(s *Server) {
 
 func CreateIncidentHandler(ser *Server, backendBase string) *IncidentHandler {
 	iH := &IncidentHandler{
-		backendAdress: fmt.Sprintf("%s/incident/", backendBase),
+		backendAdress: fmt.Sprintf("%s/incident", backendBase),
 	}
 	iH.createHandles(ser)
 	return iH

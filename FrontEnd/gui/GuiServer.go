@@ -3,7 +3,6 @@ package gui
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,32 +10,29 @@ import (
 
 type Server struct {
 	*mux.Router
-	adress string
+	Port string
 }
 
 type PageHandler interface {
 	createHandles(*Server)
 }
 
-func CreateServer(address, backendAdress string) *Server {
-	fmt.Println("Creating new Webserver")
+func CreateServer(port, backendAdress string) *Server {
 	server := &Server{
 		Router: mux.NewRouter(),
-		adress: address,
+		Port:   port,
 	}
 
 	CreateIncidentHandler(server, backendAdress)
 	CreateIndicatorHandler(server, backendAdress)
 	server.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
-	fmt.Println("Webserver Created")
+	fmt.Println("FrontEnd Created")
 	return server
 }
 
-func (s *Server) RunServer() {
-	fmt.Printf("Serving Webserver at http://%s", s.adress)
-	if err := http.ListenAndServe(s.adress, s); err != nil {
-		log.Fatal(err)
-	}
+func (s *Server) Run() {
+	fmt.Printf("Serving Webserver at https://localhost:%s", s.Port)
+	panic(http.ListenAndServe(fmt.Sprintf(":%s", s.Port), s))
 }
 
 type APIFunc func(http.ResponseWriter, *http.Request) error

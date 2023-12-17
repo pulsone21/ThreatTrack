@@ -44,7 +44,7 @@ func (iH *IndicatorHandler) createHandles(s *Server) {
 
 func CreateIndicatorHandler(ser *Server, backendBase string) *IndicatorHandler {
 	iH := &IndicatorHandler{
-		backendAdress: fmt.Sprintf("%s/ioc/", backendBase),
+		backendAdress: fmt.Sprintf("%s/ioc", backendBase),
 	}
 	iH.createHandles(ser)
 	return iH
