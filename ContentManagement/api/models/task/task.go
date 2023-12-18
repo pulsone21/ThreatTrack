@@ -28,17 +28,17 @@ type TaskPriority string
 type TaskSatus string
 
 const (
-	TaskOpen   TaskSatus    = "Open"
+	Open       TaskSatus    = "Open"
 	InProgress TaskSatus    = "In Progress"
 	Done       TaskSatus    = "Done"
-	tpLow      TaskPriority = "Low"
-	tpMedium   TaskPriority = "Medium"
-	tpHigh     TaskPriority = "High"
-	tpCritical TaskPriority = "Critical"
+	Low        TaskPriority = "Low"
+	Medium     TaskPriority = "Medium"
+	High       TaskPriority = "High"
+	Critical   TaskPriority = "Critical"
 )
 
 func NewTask(title, description string, userId, incId uuid.UUID, prio TaskPriority, status TaskSatus) *Task {
-	state := TaskOpen
+	state := Open
 	if status != "" {
 		state = status
 	}

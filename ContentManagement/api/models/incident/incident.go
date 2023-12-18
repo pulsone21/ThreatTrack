@@ -20,14 +20,14 @@ type Status string
 type IncidentSeverity string
 
 const (
-	IncLow      IncidentSeverity = "Low"
-	IncMedium   IncidentSeverity = "Medium"
-	IncHigh     IncidentSeverity = "High"
-	IncCritical IncidentSeverity = "Critical"
-	IncPending  Status           = "Pending"
-	IncOpen     Status           = "Open"
-	IncActive   Status           = "Active"
-	IncClosed   Status           = "Closed"
+	Low      IncidentSeverity = "Low"
+	Medium   IncidentSeverity = "Medium"
+	High     IncidentSeverity = "High"
+	Critical IncidentSeverity = "Critical"
+	Pending  Status           = "Pending"
+	Open     Status           = "Open"
+	Active   Status           = "Active"
+	Closed   Status           = "Closed"
 )
 
 func NewIncident(name string, severity IncidentSeverity, incType IncidentType) *Incident {
