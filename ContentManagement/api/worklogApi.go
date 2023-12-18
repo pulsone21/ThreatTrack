@@ -1,7 +1,7 @@
 package api
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/worklog"
 	"ContentManagement/api/stores"
 	"database/sql"
 	"encoding/json"
@@ -46,7 +46,7 @@ func (a *WorklogApi) api_CreateWorklog(w http.ResponseWriter, r *http.Request) e
 	if err := errors.Join(err1, err2); err != nil {
 		return err
 	}
-	wl := models.NewWorklog(writer_id, inc_id, WorReq.Content)
+	wl := worklog.NewWorklog(writer_id, inc_id, WorReq.Content)
 	if err := a.Store.CreateWorklog(wl); err != nil {
 		return err
 	}

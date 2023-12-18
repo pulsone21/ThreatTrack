@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/task"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -36,8 +36,8 @@ func (s *TaskStore) createTable() {
 	fmt.Println("No Issues found on table creation")
 }
 
-func (s *TaskStore) GetAllTasks() (*[]models.Task, error) {
-	var tasks []models.Task
+func (s *TaskStore) GetAllTasks() (*[]task.Task, error) {
+	var tasks []task.Task
 	query, err := LoadSQL("task/GetAll.sql")
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (s *TaskStore) GetAllTasks() (*[]models.Task, error) {
 	return &tasks, nil
 }
 
-func (s *TaskStore) GetTaskByID(id string) (*models.Task, error) {
+func (s *TaskStore) GetTaskByID(id string) (*task.Task, error) {
 	query, err := LoadSQL("task/GetById.sql")
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (s *TaskStore) GetTaskByID(id string) (*models.Task, error) {
 	return task, nil
 }
 
-func (s *TaskStore) CreateTask(task *models.Task) error {
+func (s *TaskStore) CreateTask(task *task.Task) error {
 	query, err := LoadSQL("task/Create.sql")
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func (s *TaskStore) CreateTask(task *models.Task) error {
 	return err
 }
 
-func (s *TaskStore) UpdateTask(task *models.Task) error {
+func (s *TaskStore) UpdateTask(task *task.Task) error {
 	// TODO Implement
 	return fmt.Errorf("not implemented")
 }
@@ -114,15 +114,15 @@ func (s *TaskStore) DeleteTask(id string) error {
 	return err
 }
 
-func (s *TaskStore) getCommentsByTask(id uuid.UUID) *[]models.TaskComment {
-	var comments []models.TaskComment
+func (s *TaskStore) getCommentsByTask(id uuid.UUID) *[]task.TaskComment {
+	var comments []task.TaskComment
 	commQuery, err := LoadSQL("taskComment/GetByTask.sql")
 	if err == nil {
 		rows, err := s.DB.Query(commQuery, id)
 		if err == nil {
 			defer rows.Close()
 			for rows.Next() {
-				var com models.TaskComment
+				var com task.TaskComment
 				err := rows.Scan(
 					&com.Id,
 					&com.Content,
@@ -139,8 +139,8 @@ func (s *TaskStore) getCommentsByTask(id uuid.UUID) *[]models.TaskComment {
 	return &comments
 }
 
-func (s *TaskStore) scanTask(scan ScanFunc) (*models.Task, error) {
-	var task models.Task
+func (s *TaskStore) scanTask(scan ScanFunc) (*task.Task, error) {
+	var task task.Task
 	err := scan(
 		&task.Id,
 		&task.Title,

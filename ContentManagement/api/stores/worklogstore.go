@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/worklog"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -34,8 +34,8 @@ func (s *WorklogStore) createTable() {
 	fmt.Println("No Issues found on table creation")
 }
 
-func (s *WorklogStore) GetAllWorklogs() (*[]models.Worklog, error) {
-	var worklogs []models.Worklog
+func (s *WorklogStore) GetAllWorklogs() (*[]worklog.Worklog, error) {
+	var worklogs []worklog.Worklog
 	query, err := LoadSQL("worklog/GetAll.sql")
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (s *WorklogStore) GetAllWorklogs() (*[]models.Worklog, error) {
 	return &worklogs, nil
 }
 
-func (s *WorklogStore) GetWorklogBy(id uuid.UUID, colName string) (*models.Worklog, error) {
+func (s *WorklogStore) GetWorklogBy(id uuid.UUID, colName string) (*worklog.Worklog, error) {
 	query, err := LoadSQL(fmt.Sprintf("worklogs/GetBy%s.sql", colName))
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (s *WorklogStore) GetWorklogBy(id uuid.UUID, colName string) (*models.Workl
 	return wl, nil
 }
 
-func (s *WorklogStore) CreateWorklog(wl *models.Worklog) error {
+func (s *WorklogStore) CreateWorklog(wl *worklog.Worklog) error {
 
 	query, err := LoadSQL("worklogs/Create.sql")
 	if err != nil {
@@ -92,8 +92,8 @@ func (s *WorklogStore) DeleteWorklog(id uuid.UUID, colName string) error {
 	return err
 }
 
-func (s *WorklogStore) scanWorklog(scan ScanFunc) (*models.Worklog, error) {
-	var wl models.Worklog
+func (s *WorklogStore) scanWorklog(scan ScanFunc) (*worklog.Worklog, error) {
+	var wl worklog.Worklog
 	if err := scan(
 		&wl.Id,
 		&wl.WriterId,

@@ -1,4 +1,4 @@
-package models
+package ioc
 
 import (
 	"github.com/google/uuid"
@@ -21,6 +21,7 @@ type Ioc_Incident struct {
 	IocId      string `json:"iocId"`
 	IncidentId string `json:"incidentId"`
 }
+
 type Verdict string
 
 const (

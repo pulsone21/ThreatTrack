@@ -12,10 +12,12 @@ import (
 
 type SuiteTest struct {
 	suite.Suite
-	s *api.ApiServer
+	server       *api.ApiServer
+	serverAdress string
 }
 
 func TestSuite(t *testing.T) {
+	os.Setenv("BACKEND_PORT", "5666")
 	fmt.Println("Creating new Test Suite")
 	if err := os.Chdir("../"); err != nil {
 		panic(err)
@@ -25,8 +27,9 @@ func TestSuite(t *testing.T) {
 }
 
 func (t *SuiteTest) SetupSuite() {
-	t.s = api.NewServer()
-
+	t.server = api.NewServer()
+	t.serverAdress = fmt.Sprintf("http://localhost:%s", os.Getenv("BACKEND_PORT"))
+	go func() { t.server.Run() }()
 }
 
 // Run After All Test Done

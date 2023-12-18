@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/user"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -21,7 +21,7 @@ func NewUserStore(db *sql.DB) *UserStore {
 }
 
 func (s *UserStore) createTable() {
-	fmt.Println("Try to create models.User Table")
+	fmt.Println("Try to create user.User Table")
 	query, err := LoadSQL("user/CreateTable.sql")
 	if err != nil {
 		panic(err.Error())
@@ -32,8 +32,8 @@ func (s *UserStore) createTable() {
 	fmt.Println("No Issues found on table creation")
 }
 
-func (s *UserStore) GetAllUser() ([]models.User, error) {
-	var users []models.User
+func (s *UserStore) GetAllUser() ([]user.User, error) {
+	var users []user.User
 	query, err := LoadSQL("user/GetAll.sql")
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (s *UserStore) GetAllUser() ([]models.User, error) {
 	}
 	defer res.Close()
 	for res.Next() {
-		var usr models.User
+		var usr user.User
 		fmt.Sprintln(res)
 		err := res.Scan(&usr.Id, &usr.FirstName, &usr.LastName, &usr.Email, &usr.Created_at, &usr.Fullanme)
 		if err != nil {
@@ -55,8 +55,8 @@ func (s *UserStore) GetAllUser() ([]models.User, error) {
 	return users, nil
 }
 
-func (s *UserStore) GetUserByID(id string) (*models.User, error) {
-	var usr models.User
+func (s *UserStore) GetUserByID(id string) (*user.User, error) {
+	var usr user.User
 	query, err := LoadSQL("user/GetById.sql")
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (s *UserStore) GetUserByID(id string) (*models.User, error) {
 	return &usr, nil
 }
 
-func (s *UserStore) CreateUser(user *models.User) error {
+func (s *UserStore) CreateUser(user *user.User) error {
 	query, err := LoadSQL("user/Create.sql")
 	if err != nil {
 		return err

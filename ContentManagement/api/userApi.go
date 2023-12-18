@@ -1,7 +1,7 @@
 package api
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/user"
 	"ContentManagement/api/stores"
 	"database/sql"
 	"encoding/json"
@@ -50,7 +50,7 @@ func (s *UserApi) api_CreateUser(w http.ResponseWriter, r *http.Request) error {
 	json.NewDecoder(r.Body).Decode(&usrReq)
 	// TODO check if usrReq.email is infact an email
 	// TODO Santisation of all the values
-	user := models.CreateUser(usrReq.FirstName, usrReq.LastName, usrReq.Email)
+	user := user.CreateUser(usrReq.FirstName, usrReq.LastName, usrReq.Email)
 	if err := s.Store.CreateUser(user); err != nil {
 		return err
 	}
@@ -74,5 +74,5 @@ func (s *UserApi) api_DeleteUser(w http.ResponseWriter, r *http.Request) error {
 	if err := s.Store.DeleteUser(id); err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, fmt.Sprintf(`models.User with ID: %s was deleted`, id))
+	return writeJSON(w, http.StatusOK, fmt.Sprintf(`user.User with ID: %s was deleted`, id))
 }

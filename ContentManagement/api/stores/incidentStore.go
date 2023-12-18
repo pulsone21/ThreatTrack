@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/incident"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -21,7 +21,7 @@ func NewIncidentStore(db *sql.DB) *IncidentStore {
 }
 
 func (s *IncidentStore) createTables() {
-	fmt.Println("Try to create models.Incident Table")
+	fmt.Println("Try to create incident.Incident Table")
 	incTable, err1 := LoadSQL("incident/CreateTable.sql")
 	incType, err2 := LoadSQL("incident/type/CreateTable.sql")
 	if err := errors.Join(err1, err2); err != nil {
@@ -35,8 +35,8 @@ func (s *IncidentStore) createTables() {
 	}
 }
 
-func (s *IncidentStore) GetAllIncidents() (*[]models.Incident, error) {
-	var incidents []models.Incident
+func (s *IncidentStore) GetAllIncidents() (*[]incident.Incident, error) {
+	var incidents []incident.Incident
 	query, err := LoadSQL("incident/GetAll.sql")
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (s *IncidentStore) GetAllIncidents() (*[]models.Incident, error) {
 	}
 	defer res.Close()
 	for res.Next() {
-		var inci models.Incident
+		var inci incident.Incident
 
 		err := res.Scan(&inci.Id, &inci.Name, &inci.Severity, &inci.Status, &inci.IncidentType.Id, &inci.IncidentType.Name)
 		if err != nil {
@@ -58,8 +58,8 @@ func (s *IncidentStore) GetAllIncidents() (*[]models.Incident, error) {
 	return &incidents, nil
 }
 
-func (s *IncidentStore) GetIncidentByID(value string) (*models.Incident, error) {
-	var inc models.Incident
+func (s *IncidentStore) GetIncidentByID(value string) (*incident.Incident, error) {
+	var inc incident.Incident
 	query, err := LoadSQL("incident/GetById.sql")
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (s *IncidentStore) GetIncidentByID(value string) (*models.Incident, error) 
 	return &inc, nil
 }
 
-func (s *IncidentStore) CreateIncident(inc *models.Incident) error {
+func (s *IncidentStore) CreateIncident(inc *incident.Incident) error {
 	query, err := LoadSQL("incident/Create.sql")
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func (s *IncidentStore) CreateIncident(inc *models.Incident) error {
 	return nil
 }
 
-func (s *IncidentStore) UpdateIncident(w http.ResponseWriter, r *http.Request) (*models.Incident, error) {
+func (s *IncidentStore) UpdateIncident(w http.ResponseWriter, r *http.Request) (*incident.Incident, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 
@@ -99,10 +99,10 @@ func (s *IncidentStore) DeleteIncident(id string) error {
 	return err
 }
 
-// models.Incident Types
+// incident.Incident Types
 
-func (s *IncidentStore) GetAllIncidentTypes() (*[]models.IncidentType, error) {
-	var iTs []models.IncidentType
+func (s *IncidentStore) GetAllIncidentTypes() (*[]incident.IncidentType, error) {
+	var iTs []incident.IncidentType
 	query, err := LoadSQL("incident/type/GetAll.sql")
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (s *IncidentStore) GetAllIncidentTypes() (*[]models.IncidentType, error) {
 	}
 	defer res.Close()
 	for res.Next() {
-		var incT models.IncidentType
+		var incT incident.IncidentType
 
 		err := res.Scan(&incT.Id, &incT.Name)
 		if err != nil {
@@ -124,8 +124,8 @@ func (s *IncidentStore) GetAllIncidentTypes() (*[]models.IncidentType, error) {
 	return &iTs, nil
 }
 
-func (s *IncidentStore) GetIncidentTypeBy(column, value string) (*models.IncidentType, error) {
-	var iT models.IncidentType
+func (s *IncidentStore) GetIncidentTypeBy(column, value string) (*incident.IncidentType, error) {
+	var iT incident.IncidentType
 	rawQ, err := LoadSQL("incident/type/GetBy.sql")
 	if err != nil {
 		return nil, err

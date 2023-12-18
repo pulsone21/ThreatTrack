@@ -1,7 +1,7 @@
 package api
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/incident"
 	"ContentManagement/api/stores"
 	"database/sql"
 	"encoding/json"
@@ -73,7 +73,7 @@ func (s *IncidentApi) api_CreateIncident(w http.ResponseWriter, r *http.Request)
 		return err
 	}
 
-	incident := models.NewIncident(IncReq.Name, models.IncidentSeverity(IncReq.Severity), *iT)
+	incident := incident.NewIncident(IncReq.Name, incident.IncidentSeverity(IncReq.Severity), *iT)
 	err = s.Store.CreateIncident(incident)
 	if err != nil {
 		return err
@@ -99,7 +99,9 @@ func (s *IncidentApi) api_DeleteIncident(w http.ResponseWriter, r *http.Request)
 	if err := s.Store.DeleteIncident(id); err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, fmt.Sprintf(`Incident with ID: %s was deleted`, id))
+	res_map := make(map[string]any)
+	res_map["Message"] = fmt.Sprintf(`Incident with ID: %s was deleted`, id)
+	return writeJSON(w, http.StatusOK, res_map)
 }
 
 func (s *IncidentApi) api_GetAllIncidentTypes(w http.ResponseWriter, r *http.Request) error {
@@ -120,7 +122,7 @@ func (s *IncidentApi) api_CreateIncidentType(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, &models.IncidentType{
+	return writeJSON(w, http.StatusOK, &incident.IncidentType{
 		Id:   id,
 		Name: iTR.Name,
 	})
@@ -140,5 +142,7 @@ func (s *IncidentApi) api_DeleteIncidentType(w http.ResponseWriter, r *http.Requ
 	if err := s.Store.DeleteIncidentType(id); err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, fmt.Sprintf(`Incident with ID: %s was deleted`, id))
+	res_map := make(map[string]any)
+	res_map["Message"] = fmt.Sprintf(`IncidentType with ID: %s was deleted`, id)
+	return writeJSON(w, http.StatusOK, res_map)
 }

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/task"
 	"ContentManagement/api/stores"
 	"database/sql"
 	"encoding/json"
@@ -74,7 +74,7 @@ func (s *TaskApi) api_CreateTask(w http.ResponseWriter, r *http.Request) error {
 	if err := errors.Join(err1, err2); err != nil {
 		return err
 	}
-	task := models.NewTask(tR.Title, tR.Description, usrId, incId, models.TaskPriority(tR.Priority), models.TaskSatus(tR.Status))
+	task := task.NewTask(tR.Title, tR.Description, usrId, incId, task.TaskPriority(tR.Priority), task.TaskSatus(tR.Status))
 	return s.Store.CreateTask(task)
 
 }

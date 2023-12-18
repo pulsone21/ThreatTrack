@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/ioc"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -20,7 +20,7 @@ func NewIocStore(db *sql.DB) *IocStore {
 }
 
 func (s *IocStore) createTables() {
-	fmt.Println("Starting to Create models.IOC Tables")
+	fmt.Println("Starting to Create ioc.IOC Tables")
 	iocTable, err1 := LoadSQL("iocs/CreateTable.sql")
 	iocType, err2 := LoadSQL("iocs/type/CreateTable.sql")
 	iocInc, err3 := LoadSQL("iocs/relations/CreateTable.sql")
@@ -40,11 +40,11 @@ func (s *IocStore) createTables() {
 }
 
 // TODO Replace inline SQL with loading function
-// models.IOC Functions
+// ioc.IOC Functions
 
-func (s *IocStore) GetAllIocs() (*[]models.IOC, error) {
+func (s *IocStore) GetAllIocs() (*[]ioc.IOC, error) {
 	fmt.Println("Requesting all iocs")
-	var iocs []models.IOC
+	var iocs []ioc.IOC
 	query := `SELECT iocs.id, iocs.value ,iocs.iocType, ioc_types.name AS iocTypeName, iocs.verdict
 	FROM iocs
 	LEFT JOIN ioc_types ON iocs.iocType = ioc_types.id;`
@@ -55,7 +55,7 @@ func (s *IocStore) GetAllIocs() (*[]models.IOC, error) {
 	}
 	defer res.Close()
 	for res.Next() {
-		var ioc models.IOC
+		var ioc ioc.IOC
 		err := res.Scan(&ioc.Id, &ioc.Value, &ioc.IocType.Id, &ioc.IocType.Name, &ioc.Verdict)
 		if err != nil {
 			return nil, err
@@ -65,7 +65,7 @@ func (s *IocStore) GetAllIocs() (*[]models.IOC, error) {
 	return &iocs, nil
 }
 
-func (s *IocStore) CreateIOC(ioc models.IOC, incIds []string) (*models.IOC, error) {
+func (s *IocStore) CreateIOC(ioc ioc.IOC, incIds []string) (*ioc.IOC, error) {
 
 	query := `INSERT INTO iocs (id, value, iocType) VALUES (?, ?, ?)`
 	res, err := s.DB.Exec(query, ioc.Id, ioc.Value, ioc.IocType.Id)
@@ -106,8 +106,8 @@ func (s *IocStore) DeleteIoc(name string) error {
 	return fmt.Errorf("NOT IMPLEMENTED")
 }
 
-func (s *IocStore) GetGetIocById(id string) (*models.IOC, error) {
-	var ioc models.IOC
+func (s *IocStore) GetGetIocById(id string) (*ioc.IOC, error) {
+	var ioc ioc.IOC
 	query := `SELECT iocs.id, iocs.value ,iocs.iocType, ioc_types.name AS iocTypeName, iocs.verdict
 				FROM iocs
 				LEFT JOIN ioc_types ON iocs.iocType = ioc_types.id
@@ -123,10 +123,10 @@ func (s *IocStore) GetGetIocById(id string) (*models.IOC, error) {
 	return &ioc, nil
 }
 
-// models.IOC Type Functions
+// ioc.IOC Type Functions
 
-func (s *IocStore) GetAllIocTypes() ([]models.IOCType, error) {
-	var iTs []models.IOCType
+func (s *IocStore) GetAllIocTypes() ([]ioc.IOCType, error) {
+	var iTs []ioc.IOCType
 	query := `select * from ioc_types;`
 	res, err := s.DB.Query(query)
 	if err != nil {
@@ -134,7 +134,7 @@ func (s *IocStore) GetAllIocTypes() ([]models.IOCType, error) {
 	}
 	defer res.Close()
 	for res.Next() {
-		var iT models.IOCType
+		var iT ioc.IOCType
 		err = res.Scan(&iT.Id, &iT.Name)
 		if err != nil {
 			return nil, err
@@ -144,24 +144,24 @@ func (s *IocStore) GetAllIocTypes() ([]models.IOCType, error) {
 	return iTs, nil
 }
 
-func (s *IocStore) GetIocTypeBy(col, value string) (*models.IOCType, error) {
+func (s *IocStore) GetIocTypeBy(col, value string) (*ioc.IOCType, error) {
 	query := "select * from ioc_types where id = ?;" //fmt.Sprintf("select * from ioc_types where %s = ?;", col)
 	fmt.Println(query)
 	res := s.DB.QueryRow(query, value)
 	fmt.Println(res)
-	var iT models.IOCType
+	var iT ioc.IOCType
 	err := res.Scan(&iT.Id, &iT.Name)
 	if err != nil {
 		fmt.Println(err.Error())
 		if err.Error() == "sql: no rows in result set" {
-			return nil, fmt.Errorf(fmt.Sprintf("Couldn't found models.IOC with combination %s and %s", col, value))
+			return nil, fmt.Errorf(fmt.Sprintf("Couldn't found ioc.IOC with combination %s and %s", col, value))
 		}
 		return nil, err
 	}
 	return &iT, nil
 }
 
-func (s *IocStore) CreateIOCType(value string) (*models.IOCType, error) {
+func (s *IocStore) CreateIOCType(value string) (*ioc.IOCType, error) {
 	query := `INSERT INTO ioc_types (name) VALUES (?)`
 	//TODO maybe implement a check if we have the value already present?
 	res, err := s.DB.Exec(query, value)
@@ -173,7 +173,7 @@ func (s *IocStore) CreateIOCType(value string) (*models.IOCType, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &models.IOCType{
+	return &ioc.IOCType{
 		Id:   int(id),
 		Name: value,
 	}, nil
@@ -184,17 +184,17 @@ func (s *IocStore) DeleteIOCType(id string) error {
 	return err
 }
 
-// models.IOC Incident Relations
+// ioc.IOC Incident Relations
 
-func (s *IocStore) GetAllRelations() ([]models.Ioc_Incident, error) {
-	var iocs []models.Ioc_Incident
+func (s *IocStore) GetAllRelations() ([]ioc.Ioc_Incident, error) {
+	var iocs []ioc.Ioc_Incident
 	query := `select * from iocs_incidents;`
 	res, err := s.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	for res.Next() {
-		var ioc models.Ioc_Incident
+		var ioc ioc.Ioc_Incident
 		err := res.Scan(&ioc.Id, &ioc.IocId, &ioc.IncidentId)
 		if err != nil {
 			return nil, err
@@ -204,15 +204,15 @@ func (s *IocStore) GetAllRelations() ([]models.Ioc_Incident, error) {
 	return iocs, nil
 }
 
-func (s *IocStore) GetRelationBy(col, value string) ([]models.Ioc_Incident, error) {
-	var iocs []models.Ioc_Incident
+func (s *IocStore) GetRelationBy(col, value string) ([]ioc.Ioc_Incident, error) {
+	var iocs []ioc.Ioc_Incident
 	query := fmt.Sprintf(`select * from iocs_incidents WHERE %s = ?;`, col)
 	res, err := s.DB.Query(query, value)
 	if err != nil {
 		return nil, err
 	}
 	for res.Next() {
-		var ioc models.Ioc_Incident
+		var ioc ioc.Ioc_Incident
 		err := res.Scan(&ioc.Id, &ioc.IocId, &ioc.IncidentId)
 		if err != nil {
 			return nil, err

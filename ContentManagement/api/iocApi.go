@@ -1,7 +1,7 @@
 package api
 
 import (
-	"ContentManagement/api/models"
+	"ContentManagement/api/models/ioc"
 	"ContentManagement/api/stores"
 	"database/sql"
 	"encoding/json"
@@ -14,16 +14,10 @@ import (
 type IocApi struct {
 	Store *stores.IocStore
 }
-type CreIocReq struct {
+type CreatIocReq struct {
 	Value       string   `json:"value"`
 	IncidentIDs []string `json:"incidentIDs"`
 	IOCType     int      `json:"IOCType"`
-}
-
-type CreaIocReq struct {
-	Name         string `json:"name"`
-	Severity     int    `json:"severity"`
-	IncidentType int    `json:"incidentType"`
 }
 
 func CreateIocApi(db *sql.DB, ser *ApiServer) *IocApi {
@@ -69,14 +63,14 @@ func (s *IocApi) api_GetAllIocs(w http.ResponseWriter, r *http.Request) error {
 
 func (s *IocApi) api_CreateIoc(w http.ResponseWriter, r *http.Request) error {
 	fmt.Println("Request for Creating IOC")
-	var iocReq CreIocReq
+	var iocReq CreatIocReq
 	json.NewDecoder(r.Body).Decode(&iocReq)
 	iT, err := s.Store.GetIocTypeBy("id", fmt.Sprint(iocReq.IOCType))
 	if err != nil {
 		fmt.Println("error in get IOCType reqeust")
 		return err
 	}
-	ioc := models.NewIOC(iocReq.Value, *iT)
+	ioc := ioc.NewIOC(iocReq.Value, *iT)
 	_, err = s.Store.CreateIOC(*ioc, iocReq.IncidentIDs)
 	if err != nil {
 		return err

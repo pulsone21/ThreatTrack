@@ -1,6 +1,9 @@
-package models
+package task
 
 import (
+	"ContentManagement/api/models/incident"
+	"ContentManagement/api/models/user"
+
 	"github.com/google/uuid"
 )
 
@@ -8,8 +11,8 @@ type Task struct {
 	Id          uuid.UUID
 	Title       string
 	Description string
-	Assignee    User
-	Incident    Incident
+	Assignee    user.User
+	Incident    incident.Incident
 	Status      TaskSatus
 	Priority    TaskPriority
 	Comments    []TaskComment
@@ -43,10 +46,10 @@ func NewTask(title, description string, userId, incId uuid.UUID, prio TaskPriori
 		Id:          uuid.New(),
 		Title:       title,
 		Description: description,
-		Assignee: User{
+		Assignee: user.User{
 			Id: userId,
 		},
-		Incident: Incident{
+		Incident: incident.Incident{
 			Id: incId,
 		},
 		Status:   state,

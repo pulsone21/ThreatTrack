@@ -1,4 +1,4 @@
-package models
+package worklog
 
 import (
 	"time"
