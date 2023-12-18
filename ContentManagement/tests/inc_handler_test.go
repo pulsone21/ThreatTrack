@@ -145,7 +145,7 @@ func createInc(url string) (string, error) {
 	var inc incident.Incident
 
 	json.NewDecoder(res.Body).Decode(&inc)
-	EXPECTED_STATUS := incident.IncOpen
+	EXPECTED_STATUS := incident.Open
 	if inc.Status != EXPECTED_STATUS {
 		return "", fmt.Errorf("CreateIncident - FAILED - expected Incident Status: %s but got %s", EXPECTED_STATUS, inc.Status)
 	}
