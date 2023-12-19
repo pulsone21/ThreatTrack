@@ -6,13 +6,13 @@ CREATE TABLE IF NOT EXISTS incident_types (
 	);
 
 CREATE TABLE IF NOT EXISTS incidents (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(50),
-    severity enum('Low','Medium','High', 'Critical') DEFAULT 'Low',
-    status enum('Pending','Open','Active', 'Closed') DEFAULT 'Pending',
-    type int,
-    FOREIGN KEY (type) REFERENCES incident_types(id) ON DELETE SET NULL
-);
+		id VARCHAR(50) PRIMARY KEY,
+		name VARCHAR(50),
+		severity enum('Low','Medium','High', 'Critical') DEFAULT 'Low',
+		status enum('Pending','Open','Active', 'Closed') DEFAULT 'Pending',
+		type int DEFAULT 0,
+		FOREIGN KEY (type) REFERENCES incident_types(id) ON DELETE SET DEFAULT
+	);
 
 CREATE TABLE IF NOT EXISTS ioc_types (
   id INT NOT NULL AUTO_INCREMENT,
@@ -21,13 +21,17 @@ CREATE TABLE IF NOT EXISTS ioc_types (
 );
 
 CREATE TABLE IF NOT EXISTS iocs (
-    id VARCHAR(50) PRIMARY KEY,
-    value VARCHAR(50) NOT NULL,
-    iocType INT NOT NULL,
-    verdict ENUM('Neutral','Benigne','Malicious') DEFAULT 'Neutral',
-    KEY iocType (iocType),
-    FOREIGN KEY (iocType) REFERENCES ioc_types (id)
+  id varchar(50) NOT NULL,
+  value varchar(50) NOT NULL,
+  iocType int DEFAULT 0,
+  verdict enum('Neutral','Benigne','Malicious') DEFAULT 'Neutral',
+  PRIMARY KEY (id),
+  KEY iocType (iocType),
+ FOREIGN KEY (iocType) REFERENCES ioc_types (id) ON DELETE SET DEFAULT
 );
+
+
+
 
 CREATE TABLE IF NOT EXISTS iocs_incidents (
   id int NOT NULL AUTO_INCREMENT,

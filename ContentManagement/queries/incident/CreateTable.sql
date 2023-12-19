@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS incidents (
 		name VARCHAR(50),
 		severity enum('Low','Medium','High', 'Critical') DEFAULT 'Low',
 		status enum('Pending','Open','Active', 'Closed') DEFAULT 'Pending',
-		type int,
-		FOREIGN KEY (type) REFERENCES incident_types(id) ON DELETE SET NULL
+		type int DEFAULT 0,
+		FOREIGN KEY (type) REFERENCES incident_types(id) ON DELETE SET DEFAULT
 	);
