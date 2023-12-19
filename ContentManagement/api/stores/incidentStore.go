@@ -47,30 +47,27 @@ func (s *IncidentStore) GetAllIncidents() (*[]incident.Incident, error) {
 	}
 	defer res.Close()
 	for res.Next() {
-		var inci incident.Incident
-
-		err := res.Scan(&inci.Id, &inci.Name, &inci.Severity, &inci.Status, &inci.IncidentType.Id, &inci.IncidentType.Name)
+		inci, err := s.scanIncident(res.Scan)
 		if err != nil {
 			return nil, err
 		}
-		incidents = append(incidents, inci)
+		incidents = append(incidents, *inci)
 	}
 	return &incidents, nil
 }
 
 func (s *IncidentStore) GetIncidentByID(value string) (*incident.Incident, error) {
-	var inc incident.Incident
 	query, err := LoadSQL("incident/GetById.sql")
 	if err != nil {
 		return nil, err
 	}
 	res := s.DB.QueryRow(query, value)
 
-	err = res.Scan(&inc.Id, &inc.Name, &inc.Severity, &inc.IncidentType.Id, &inc.IncidentType.Name)
+	inc, err := s.scanIncident(res.Scan)
 	if err != nil {
 		return nil, err
 	}
-	return &inc, nil
+	return inc, nil
 }
 
 func (s *IncidentStore) CreateIncident(inc *incident.Incident) error {
@@ -163,4 +160,19 @@ func (s *IncidentStore) DeleteIncidentType(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *IncidentStore) scanIncident(scan ScanFunc) (*incident.Incident, error) {
+	var inci incident.Incident
+	err := scan(
+		&inci.Id,
+		&inci.Name,
+		&inci.Severity,
+		&inci.Status,
+		&inci.IncidentType.Id,
+		&inci.IncidentType.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &inci, nil
 }

@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"ContentManagement/api"
 	"fmt"
 	"os"
 	"os/exec"
@@ -12,8 +11,7 @@ import (
 
 type SuiteTest struct {
 	suite.Suite
-	server       *api.ApiServer
-	serverAdress string
+	ApiServer string
 }
 
 func TestSuite(t *testing.T) {
@@ -23,13 +21,10 @@ func TestSuite(t *testing.T) {
 		panic(err)
 	}
 	suite.Run(t, new(SuiteTest))
-	fmt.Println("Creating new Test Suite")
 }
 
 func (t *SuiteTest) SetupSuite() {
-	t.server = api.NewServer()
-	t.serverAdress = fmt.Sprintf("http://localhost:%s", os.Getenv("BACKEND_PORT"))
-	go func() { t.server.Run() }()
+	t.ApiServer = fmt.Sprintf("http://%s:%s", os.Getenv("BACKEND_ADRESS"), os.Getenv("BACKEND_PORT"))
 }
 
 // Run After All Test Done

@@ -10,136 +10,46 @@ import (
 	"net/http"
 )
 
-func (t *SuiteTest) TestHello() {
-	fmt.Println("Hello Word")
-}
-
-func (t *SuiteTest) TestIncidentHandler() {
-	fmt.Println("Starting incident handler testing")
-	baseUrl := fmt.Sprintf("%s/incident", t.serverAdress)
-
-	// Get All Incident
-	err := getAllIncs(baseUrl)
+func (t *SuiteTest) Test1GetAllInc() {
+	res, err := http.Get(fmt.Sprintf("%s/incident", t.ApiServer))
 	if err != nil {
 		t.Error(err)
-	}
-
-	// Creating a Incident
-	incID, err := createInc(baseUrl)
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Specific Incident
-	if err := getIncByID(baseUrl, incID); err != nil {
-		t.Error(err)
-	}
-
-	// Delete Incident
-	if err := deleteInc(baseUrl, incID); err != nil {
-		t.Error(err)
-	}
-
-}
-
-func (t *SuiteTest) TestIncidentTypeHandler() {
-	// Get All Incident Types
-	// Creating a Incident Type
-	// Get specficic Type
-	// Delete a Incident Type
-	fmt.Println("Starting incidentType handler testing")
-	baseUrl := fmt.Sprintf("%s/incidenttype", t.serverAdress)
-
-	// Get All Incident
-	err := getAllIncTypes(baseUrl)
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Creating a Incident
-	incID, err := createIncType(baseUrl)
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Specific Incident
-	if err := getIncTypeByID(baseUrl, incID); err != nil {
-		t.Error(err)
-	}
-
-	// Delete Incident
-	if err := deleteIncType(baseUrl, incID); err != nil {
-		t.Error(err)
-	}
-}
-
-func getAllIncs(url string) error {
-	res, err := http.Get(url)
-	if err != nil {
-		return err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("GetAllIncs - FAILED - expected status code 200 but got %d\n", res.StatusCode)
+		t.Error(fmt.Errorf("GetAllIncs - FAILED - expected status code 200 but got %d\n", res.StatusCode))
 	}
 
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return err
+		t.Error(err)
 	}
 	ACTUAL := string(body)
 	EXPECTED := "[{\"id\":\"b595bee6-d8c6-4b3b-b072-1e45c2103002\",\"name\":\"RapidResponse Case 2\",\"severity\":\"Critical\",\"status\":\"Pending\",\"type\":{\"id\":1,\"name\":\"CSIRTaaS\"}},{\"id\":\"b595bee6-d8c7-4b3b-b071-1e45c2103002\",\"name\":\"RapidResponse Case 1\",\"severity\":\"Low\",\"status\":\"Pending\",\"type\":{\"id\":1,\"name\":\"CSIRTaaS\"}}]"
 	if ACTUAL != EXPECTED {
-		return fmt.Errorf("GetAllIncs - FAILED - Expected %v but got %v", EXPECTED, ACTUAL)
+		t.Error(fmt.Errorf("GetAllIncs - FAILED - Expected %v but got %v", EXPECTED, ACTUAL))
 	}
-	fmt.Println("GetAllIncs - Passed")
-	return nil
 }
 
-func getAllIncTypes(url string) error {
-	res, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("GetAllIncType - FAILED - expected status code 200 but got %d\n", res.StatusCode)
-	}
-
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-
-	ACTUAL := string(body)
-	EXPECTED := "[{\"id\":1,\"name\":\"CSIRTaaS\"},{\"id\":2,\"name\":\"RapidResponse\"}]"
-	if ACTUAL != EXPECTED {
-		return fmt.Errorf("GetAllIncs - FAILED - Expected %v but got %v", EXPECTED, ACTUAL)
-	}
-	fmt.Println("GetAllIncTypes - Passed")
-	return nil
-}
-
-func createInc(url string) (string, error) {
+func (t *SuiteTest) Test2CreateIncident() {
 	inc_marshalled, err := json.Marshal(&api.CreaIncReq{
 		Name:         "IncidentTwo",
 		Severity:     "Low",
 		IncidentType: 1,
 	})
 	if err != nil {
-		return "", err
+		t.Error(err)
 	}
+	url := fmt.Sprintf("%s/incident", t.ApiServer)
 	res, err := http.Post(url, "application/json", bytes.NewReader(inc_marshalled))
 	if err != nil {
-		return "", err
+		t.Error(err)
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("CreatIncident - FAILED - expected status code 200 but got %d\n", res.StatusCode)
+		t.Error(fmt.Errorf("CreatIncident - FAILED - expected status code 200 but got %d\n", res.StatusCode))
 	}
 	defer res.Body.Close()
 	var inc incident.Incident
@@ -147,118 +57,143 @@ func createInc(url string) (string, error) {
 	json.NewDecoder(res.Body).Decode(&inc)
 	EXPECTED_STATUS := incident.Open
 	if inc.Status != EXPECTED_STATUS {
-		return "", fmt.Errorf("CreateIncident - FAILED - expected Incident Status: %s but got %s", EXPECTED_STATUS, inc.Status)
+		t.Error(fmt.Errorf("CreateIncident - FAILED - expected Incident Status: %s but got %s", EXPECTED_STATUS, inc.Status))
 	}
-	fmt.Printf("CreateIncident - PASSED - Incident with ID: '%s' was created. \n", inc.Id)
-	return inc.Id.String(), nil
 }
 
-func createIncType(url string) (string, error) {
-	inc_marshalled, err := json.Marshal(&api.CreIncTypeReq{
-		Name: "TEST_TYPE",
-	})
+func (t *SuiteTest) Test3GetIncByID() {
+	incID := "b595bee6-d8c7-4b3b-b071-1e45c2103002"
+	url := fmt.Sprintf("%s/incident/%s", t.ApiServer, incID)
+	fmt.Println(url)
+	res, err := http.Get(url)
 	if err != nil {
-		return "", err
+		t.Error(err)
+		return
 	}
-	res, err := http.Post(url, "application/json", bytes.NewReader(inc_marshalled))
-	if err != nil {
-		return "", err
-	}
+	t.Assertions.True(res.StatusCode == 200, fmt.Sprintf("GetIncByID - FAILED - expected status code 200 but got %d\n", res.StatusCode))
 
-	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("CreatIncidentType - FAILED - expected status code 200 but got %d\n", res.StatusCode)
-	}
-	defer res.Body.Close()
-	var inc incident.IncidentType
-	json.NewDecoder(res.Body).Decode(&inc)
-	fmt.Printf("CreatIncidentType - PASSED - Incident with ID: '%d' was created. \n", inc.Id)
-	return fmt.Sprint(inc.Id), nil
-}
-
-func getIncByID(baseUrl, incID string) error {
-	res, err := http.Get(fmt.Sprintf("%s/%s", baseUrl, incID))
-	if err != nil {
-		return err
-	}
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("GetIncByID - FAILED - expected status code 200 but got %d\n", res.StatusCode)
-	}
 	defer res.Body.Close()
 	var inc incident.Incident
 
 	json.NewDecoder(res.Body).Decode(&inc)
-
-	if inc.Id.String() != incID {
-		return fmt.Errorf("GetIncByID - FAILED - expected IncidentType ID: %s but got %d", incID, inc.Id)
-	}
-	fmt.Printf("GetIncByID - PASSED - Got Incident with ID: '%s'\n", inc.Id)
-	return nil
+	t.Assertions.Equal(fmt.Sprint(inc.Id), incID, fmt.Sprintf("GetIncByID - FAILED - expected IncidentType ID: %s but got %d", incID, inc.Id))
 }
 
-func getIncTypeByID(baseUrl, incID string) error {
-	res, err := http.Get(fmt.Sprintf("%s/%s", baseUrl, incID))
+func (t *SuiteTest) Test4DeleteIncident() {
+	incID := "b595bee6-d8c7-4b3b-b071-1e45c2103002"
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/incident/%s", t.ApiServer, incID), nil)
 	if err != nil {
-		return err
+		t.Error(err)
+		return
 	}
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("getIncTypeByID - FAILED - expected status code 200 but got %d\n", res.StatusCode)
+	client := http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		t.Error(err)
+		return
 	}
+	t.Assertions.True(res.StatusCode == 200, fmt.Sprintf("DeleteInc - FAILED - expected status code 200 but got %d\n", res.StatusCode))
+
+	defer res.Body.Close()
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	var ACTUAL map[string]any
+	json.Unmarshal(bytes, &ACTUAL)
+	EXPECTED := fmt.Sprintf(`Incident with ID: %s was deleted`, incID)
+	t.Assertions.Equal(EXPECTED, ACTUAL["Message"], fmt.Sprintf("DeleteInc - FAILED - expected DeleteMessage: '%s' but got %s", EXPECTED, ACTUAL["Message"]))
+}
+
+func (t *SuiteTest) Test1GetAllIncTypes() {
+	url := fmt.Sprintf("%s/incidenttype", t.ApiServer)
+	res, err := http.Get(url)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	t.Assertions.Equal(res.StatusCode, http.StatusOK, fmt.Sprintf("GetAllIncType - FAILED - expected status code 200 but got %d\n", res.StatusCode))
+
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	ACTUAL := string(body)
+	EXPECTED := "[{\"id\":1,\"name\":\"CSIRTaaS\"},{\"id\":2,\"name\":\"RapidResponse\"}]\n"
+	t.Assertions.Equal(EXPECTED, ACTUAL, fmt.Sprintf("GetAllIncs - FAILED - Expected %v but got %v", EXPECTED, ACTUAL))
+}
+
+func (t *SuiteTest) Test2CreateIncType() {
+	url := fmt.Sprintf("%s/incidenttype", t.ApiServer)
+	test_name := "TEST_TYPE"
+	inc_marshalled, err := json.Marshal(&api.CreIncTypeReq{
+		Name: test_name,
+	})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	res, err := http.Post(url, "application/json", bytes.NewReader(inc_marshalled))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Assertions.Equal(res.StatusCode, http.StatusOK, fmt.Sprintf("CreatIncidentType - FAILED - expected status code 200 but got %d\n", res.StatusCode))
+
+	defer res.Body.Close()
+	var inc incident.IncidentType
+	json.NewDecoder(res.Body).Decode(&inc)
+	t.Assertions.Equal(inc.Name, test_name, fmt.Sprintf("CreatIncidentType - FAILED - expected type name %s but got %d\n", test_name, res.StatusCode))
+}
+
+func (t *SuiteTest) Test3GetIncTypeByID() {
+	url := fmt.Sprintf("%s/incidenttype", t.ApiServer)
+	typeID := "1"
+	res, err := http.Get(fmt.Sprintf("%s/%s", url, typeID))
+	if err != nil {
+		t.Error(err)
+	}
+	t.Assertions.Equal(res.StatusCode, http.StatusOK, fmt.Sprintf("GetIncTypeByID - FAILED - expected status code 200 but got %d\n", res.StatusCode))
+
 	defer res.Body.Close()
 	var inc incident.IncidentType
 
 	json.NewDecoder(res.Body).Decode(&inc)
 
-	if fmt.Sprint(inc.Id) != incID {
-		return fmt.Errorf("getIncTypeByID - FAILED - expected IncidentType ID: %s but got %d", incID, inc.Id)
-	}
-	fmt.Printf("getIncTypeByID - PASSED - Got Incident with ID: '%d'\n", inc.Id)
-	return nil
+	t.Assertions.Equal(fmt.Sprint(inc.Id), typeID, fmt.Sprintf("getIncTypeByID - FAILED - expected IncidentType ID: %s but got %d", typeID, inc.Id))
+
 }
 
-func deleteInc(baseUrl, incID string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s", baseUrl, incID), nil)
+func (t *SuiteTest) Test4DeleteIncType() {
+	url := fmt.Sprintf("%s/incidenttype", t.ApiServer)
+	typeID := "3"
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s", url, typeID), nil)
 	if err != nil {
-		return err
+		t.Error(err)
+		return
 	}
 	client := http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return err
+		t.Error(err)
+		return
 	}
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("DeleteInc - FAILED - expected status code 200 but got %d\n", res.StatusCode)
-	}
-	defer res.Body.Close()
-	var ACTUAL map[string]any
-	json.NewDecoder(res.Body).Decode(&ACTUAL)
-	EXPECTED := fmt.Sprintf(`Incident with ID: %s was deleted`, incID)
-	if ACTUAL["message"] != EXPECTED {
-		return fmt.Errorf("DeleteInc - FAILED - expected DeleteMessage: %s but got %s", EXPECTED, ACTUAL["message"])
-	}
-	fmt.Printf("GetIncByID - PASSED - '%s'\n", ACTUAL["message"])
-	return nil
-}
+	t.Assertions.Equal(res.StatusCode, http.StatusOK, fmt.Sprintf("DeleteIncType - FAILED - expected status code 200 but got %d\n", res.StatusCode))
 
-func deleteIncType(baseUrl, incID string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s", baseUrl, incID), nil)
-	if err != nil {
-		return err
-	}
-	client := http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("DeleteIncType - FAILED - expected status code 200 but got %d\n", res.StatusCode)
-	}
 	defer res.Body.Close()
-	var ACTUAL map[string]any
-	json.NewDecoder(res.Body).Decode(&ACTUAL)
-	EXPECTED := fmt.Sprintf(`IncidentType with ID: %s was deleted`, incID)
-	if ACTUAL["message"] != EXPECTED {
-		return fmt.Errorf("DeleteIncType - FAILED - expected DeleteMessage: %s but got %s", EXPECTED, ACTUAL["message"])
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Error(err)
+		return
 	}
-	fmt.Printf("DeleteIncType - PASSED - '%s'\n", ACTUAL["message"])
-	return nil
+	var ACTUAL map[string]any
+	json.Unmarshal(bytes, &ACTUAL)
+	EXPECTED := fmt.Sprintf(`IncidentType with ID: %s was deleted`, typeID)
+	t.Assertions.Equal(EXPECTED, ACTUAL["Message"], fmt.Sprintf("DeleteIncType - FAILED - expected DeleteMessage: '%s' but got %s", EXPECTED, ACTUAL["Message"]))
 }

@@ -7,10 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type IncidentHandler struct {
 	backendAdress string
+	templatePath  string
 }
 
 type incTableViewData struct {
@@ -40,13 +42,19 @@ const (
 
 func (iH *IncidentHandler) createHandles(s *Server) {
 	s.Router.HandleFunc("/incidentTable/", s.createHandleFunc(iH.serveIncidentTable)).Methods("GET")
-	s.Router.HandleFunc("/incident/", s.createHandleFunc(iH.serveIncidentPage)).Methods("GET")
+	s.Router.HandleFunc("/incident/summary", s.createHandleFunc(iH.serveIncidentPage)).Methods("GET")
+	s.Router.HandleFunc("/incident/worklog", s.createHandleFunc(iH.serveIncidentWorklog)).Methods("GET")
+	s.Router.HandleFunc("/incident/planing", s.createHandleFunc(iH.serveIncidentPlaning)).Methods("GET")
+	s.Router.HandleFunc("/incident/iocView", s.createHandleFunc(iH.serveIncidentiocView)).Methods("GET")
 }
 
 func CreateIncidentHandler(ser *Server, backendBase string) *IncidentHandler {
+	wd, _ := os.Getwd()
 	iH := &IncidentHandler{
 		backendAdress: fmt.Sprintf("%s/incident", backendBase),
+		templatePath:  "templates/incident",
 	}
+	fmt.Printf("%s/%s\n", wd, iH.templatePath)
 	iH.createHandles(ser)
 	return iH
 }
@@ -69,7 +77,7 @@ func (iH *IncidentHandler) serveIncidentTable(w http.ResponseWriter, r *http.Req
 		log.Fatalln(err.Error())
 		return err
 	}
-	tmpl, err := template.ParseFiles("./templates/incidentTable.html")
+	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/incidentTable.html", iH.templatePath))
 	if err != nil {
 		log.Fatalln(err.Error())
 		return err
@@ -99,7 +107,70 @@ func (iH *IncidentHandler) serveIncidentPage(w http.ResponseWriter, r *http.Requ
 		return err
 	}
 
-	tmpl, err := template.ParseFiles("./templates/incident.html")
+	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/incident.html", iH.templatePath))
+	if err != nil {
+		return err
+	}
+	return tmpl.Execute(w, inc)
+}
+
+func (iH *IncidentHandler) serveIncidentWorklog(w http.ResponseWriter, r *http.Request) error {
+	incId := r.URL.Query().Get("id")
+	url := fmt.Sprintf("%s/%s", iH.backendAdress, incId)
+	fmt.Printf("\nrequesting backend with %s \n", url)
+
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	var inc Incident
+	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
+		return err
+	}
+
+	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/incidentWorklogs.html", iH.templatePath))
+	if err != nil {
+		return err
+	}
+	return tmpl.Execute(w, inc)
+}
+
+func (iH *IncidentHandler) serveIncidentPlaning(w http.ResponseWriter, r *http.Request) error {
+	incId := r.URL.Query().Get("id")
+	url := fmt.Sprintf("%s/%s", iH.backendAdress, incId)
+	fmt.Printf("\nrequesting backend with %s \n", url)
+
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	var inc Incident
+	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
+		return err
+	}
+
+	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/incidentPlaning.html", iH.templatePath))
+	if err != nil {
+		return err
+	}
+	return tmpl.Execute(w, inc)
+}
+
+func (iH *IncidentHandler) serveIncidentiocView(w http.ResponseWriter, r *http.Request) error {
+	incId := r.URL.Query().Get("id")
+	url := fmt.Sprintf("%s/%s", iH.backendAdress, incId)
+	fmt.Printf("\nrequesting backend with %s \n", url)
+
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	var inc Incident
+	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
+		return err
+	}
+
+	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/incidentIOCView.html", iH.templatePath))
 	if err != nil {
 		return err
 	}

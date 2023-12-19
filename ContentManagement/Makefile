@@ -11,13 +11,19 @@ build:
 setup: build start_db reset_db
 	@./bin/backEnd
 
-run: build
+run: build start_db
 	@./bin/backEnd
 
 restart: start_db reset_db setup_db generate_data run
 
-test: start_db reset_db setup_db generate_data
+test: start_db reset_db setup_db generate_data create_test_img
+	@docker start TestBackend
 	@go test -run ^TestSuite$  -v ./tests
+
+create_test_img:
+	@docker rm --force TestBackend
+	@docker build -t backend:test -f Dockerfile.testing .
+	@docker create -p 5666:5666 --name TestBackend --network DB backend:test 
 
 start_db:
 	@echo "starting db"
