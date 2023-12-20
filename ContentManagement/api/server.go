@@ -20,7 +20,7 @@ type ApiServer struct {
 	Db DB
 }
 
-type APIFunc func(http.ResponseWriter, *http.Request) error
+type APIFunc func(http.ResponseWriter, *http.Request) (*ApiResponse, *ApiError)
 
 func NewServer() *ApiServer {
 	dbUsr := os.Getenv("MYSQLUSER")
@@ -49,7 +49,7 @@ func (server *ApiServer) Run() {
 	log.Println("Shutting down the server...")
 
 	// Set a timeout for shutdown (for example, 5 seconds).
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
@@ -58,20 +58,13 @@ func (server *ApiServer) Run() {
 	log.Println("Server gracefully stopped")
 }
 
-type ApiError struct {
-	RequestUrl string
-	Error      string `json:"error"`
-}
-
-type APIResponse struct {
-	Data []interface{}
-}
-
 func createHandleFunc(apiF APIFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := apiF(w, r); err != nil {
-			writeJSON(w, http.StatusBadRequest, ApiError{RequestUrl: r.RequestURI, Error: err.Error()})
+		res, err := apiF(w, r)
+		if err != nil {
+			writeJSON(w, err.StatusCode, map[string]string{"RequestUrl": err.RequestUrl, "Message": err.Error()})
 		}
+		writeJSON(w, res.StatusCode, res)
 	}
 }
 

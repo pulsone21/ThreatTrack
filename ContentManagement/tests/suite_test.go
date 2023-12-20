@@ -36,6 +36,13 @@ func (t *SuiteTest) TearDownSuite() {
 		fmt.Println("Error in TearDownSuite")
 		panic(err.Error())
 	}
+	cmd = exec.Command("docker", "stop", "TestBackend")
+	out, err = cmd.Output()
+	if err != nil {
+		fmt.Println("Error in TearDownSuite")
+		panic(err.Error())
+	}
+
 	fmt.Println("TearDownSuite Output: ", string(out))
 }
 

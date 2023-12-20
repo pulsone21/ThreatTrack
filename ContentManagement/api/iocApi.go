@@ -52,126 +52,133 @@ func (api *IocApi) createHandles(ser *ApiServer) {
 
 // API FUNCTIONS FOR IOCS
 
-func (s *IocApi) api_GetAllIocs(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_GetAllIocs(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Requesting All IOCs API Handler")
 	iocs, err := s.Store.GetAllIocs()
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, iocs)
+	return NewApiResponse(http.StatusOK, r.RequestURI, iocs), nil
 }
 
-func (s *IocApi) api_CreateIoc(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_CreateIoc(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Request for Creating IOC")
 	var iocReq CreatIocReq
 	json.NewDecoder(r.Body).Decode(&iocReq)
 	iT, err := s.Store.GetIocTypeBy("id", fmt.Sprint(iocReq.IOCType))
 	if err != nil {
-		fmt.Println("error in get IOCType reqeust")
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 	ioc := ioc.NewIOC(iocReq.Value, *iT)
 	_, err = s.Store.CreateIOC(*ioc, iocReq.IncidentIDs)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, ioc)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{ioc}), nil
 }
 
-func (s *IocApi) api_GetIocByID(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_GetIocByID(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	ioc, err := s.Store.GetGetIocById(id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, ioc)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{ioc}), nil
 }
 
-func (s *IocApi) api_UpdateIoc(w http.ResponseWriter, r *http.Request) error {
-	return fmt.Errorf("not implemented")
+func (s *IocApi) api_UpdateIoc(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
+	return nil, &ApiError{
+		error:      fmt.Errorf("not implemented"),
+		StatusCode: http.StatusNotImplemented,
+		RequestUrl: r.RequestURI,
+	}
+
 }
 
-func (s *IocApi) api_DeleteIoc(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_DeleteIoc(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	err := s.Store.DeleteIoc(id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, fmt.Sprintf("Deleted IOC with ID: %s", id))
+	res := map[string]string{"Message": fmt.Sprintf("Deleted IOC with ID: %s", id)}
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res}), nil
 }
 
 // API FUNCTIONS FOR IOC TYPES
 
-func (s *IocApi) api_GetAllIocTypes(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_GetAllIocTypes(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Get all ioc Types")
 	iTs, err := s.Store.GetAllIocTypes()
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, iTs)
+	return NewApiResponse(http.StatusOK, r.RequestURI, iTs), nil
 }
 
-func (s *IocApi) api_CreateIocType(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_CreateIocType(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Creating new Incident Type")
 	var iTR CreIncTypeReq
 	err := json.NewDecoder(r.Body).Decode(&iTR)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 	iT, err := s.Store.CreateIOCType(iTR.Name)
 	if err != nil {
-		return nil
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, iT)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{iT}), nil
 }
 
-func (s *IocApi) api_GetIocTypeById(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_GetIocTypeById(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	iT, err := s.Store.GetIocTypeBy("id", id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, iT)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{iT}), nil
 }
 
-func (s *IocApi) api_DeleteIocType(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_DeleteIocType(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	err := s.Store.DeleteIOCType(id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, fmt.Sprintf("Deleted IOCType with ID: %s", id))
+	res := map[string]string{"Message": fmt.Sprintf("Deleted IOCType with ID: %s", id)}
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res}), nil
+
 }
 
 // API FUNCTIONS FOR IOC_INCIDENT RELEATIONS
 
-func (s *IocApi) api_GetAllIocIncidents(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_GetAllIocIncidents(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	res, err := s.Store.GetAllRelations()
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, res)
+	return NewApiResponse(http.StatusOK, r.RequestURI, res), nil
 }
 
-func (s *IocApi) api_GetIocIncidentBy(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_GetIocIncidentBy(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	qval := r.URL.Query()
 	id := qval.Get("id")
 	ty := qval.Get("type")
 	res, err := s.Store.GetRelationBy(ty, id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, res)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res}), nil
 }
 
-func (s *IocApi) api_DeleteRelationBy(w http.ResponseWriter, r *http.Request) error {
+func (s *IocApi) api_DeleteRelationBy(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	qval := r.URL.Query()
 	id := qval.Get("id")
 	ty := qval.Get("type")
 	err := s.Store.DeleteRelationsBy(ty, id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, fmt.Sprintf("Delete all Relations from %s with id: %s", ty, id))
-
+	res := map[string]string{"Message": fmt.Sprintf("Delete all Relations from %s with id: %s", ty, id)}
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res}), nil
 }

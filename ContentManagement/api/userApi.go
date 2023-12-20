@@ -30,11 +30,11 @@ func CreateUserApi(db *sql.DB, serv *ApiServer) *UserApi {
 }
 
 func (s *UserApi) createHandles(ser *ApiServer) {
-	ser.HandleFunc("/user", createHandleFunc(s.api_GetAllUsers)).Methods("GET")
-	ser.HandleFunc("/user", createHandleFunc(s.api_CreateUser)).Methods("POST")
-	ser.HandleFunc("/user/{id}", createHandleFunc(s.api_GetUserByID)).Methods("GET")
-	ser.HandleFunc("/user/{id}", createHandleFunc(s.api_UpdateUser)).Methods("PUT")
-	ser.HandleFunc("/user/{id}", createHandleFunc(s.api_DeleteUser)).Methods("DELETE")
+	//ser.HandleFunc("/user", createHandleFunc(s.api_GetAllUsers)).Methods("GET")
+	//ser.HandleFunc("/user", createHandleFunc(s.api_CreateUser)).Methods("POST")
+	//ser.HandleFunc("/user/{id}", createHandleFunc(s.api_GetUserByID)).Methods("GET")
+	//ser.HandleFunc("/user/{id}", createHandleFunc(s.api_UpdateUser)).Methods("PUT")
+	//ser.HandleFunc("/user/{id}", createHandleFunc(s.api_DeleteUser)).Methods("DELETE")
 }
 
 func (s *UserApi) api_GetAllUsers(w http.ResponseWriter, r *http.Request) error {

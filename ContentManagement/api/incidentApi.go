@@ -54,15 +54,15 @@ func (s *IncidentApi) createHandles(ser *ApiServer) {
 
 }
 
-func (s *IncidentApi) api_GetAllIncidents(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_GetAllIncidents(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	incs, err := s.Store.GetAllIncidents()
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, incs)
+	return NewApiResponse(http.StatusOK, r.RequestURI, incs), nil
 }
 
-func (s *IncidentApi) api_CreateIncident(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_CreateIncident(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Request for Creating Incident")
 	var IncReq CreaIncReq
 	json.NewDecoder(r.Body).Decode(&IncReq)
@@ -70,79 +70,84 @@ func (s *IncidentApi) api_CreateIncident(w http.ResponseWriter, r *http.Request)
 
 	iT, err := s.Store.GetIncidentTypeBy("id", fmt.Sprintf("%v", IncReq.IncidentType))
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 
-	incident := incident.NewIncident(IncReq.Name, incident.IncidentSeverity(IncReq.Severity), *iT)
-	err = s.Store.CreateIncident(incident)
+	inc := incident.NewIncident(IncReq.Name, incident.IncidentSeverity(IncReq.Severity), *iT)
+	err = s.Store.CreateIncident(inc)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, incident)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{inc}), nil
 }
 
-func (s *IncidentApi) api_GetIncidentByID(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_GetIncidentByID(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	inc, err := s.Store.GetIncidentByID(id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, inc)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{inc}), nil
 }
 
-func (s *IncidentApi) api_UpdateIncident(w http.ResponseWriter, r *http.Request) error {
-	return fmt.Errorf("not implemented")
+func (s *IncidentApi) api_UpdateIncident(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
+	return nil, &ApiError{
+		error:      fmt.Errorf("not implemented"),
+		StatusCode: http.StatusNotImplemented,
+		RequestUrl: r.RequestURI,
+	}
 }
 
-func (s *IncidentApi) api_DeleteIncident(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_DeleteIncident(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	if err := s.Store.DeleteIncident(id); err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 	res_map := make(map[string]any)
 	res_map["Message"] = fmt.Sprintf(`Incident with ID: %s was deleted`, id)
-	return writeJSON(w, http.StatusOK, res_map)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res_map}), nil
 }
 
-func (s *IncidentApi) api_GetAllIncidentTypes(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_GetAllIncidentTypes(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Get all Incident Types")
 	incs, err := s.Store.GetAllIncidentTypes()
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 	fmt.Sprintln(incs)
-	return writeJSON(w, http.StatusOK, incs)
+	return NewApiResponse(http.StatusOK, r.RequestURI, incs), nil
 }
 
-func (s *IncidentApi) api_CreateIncidentType(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_CreateIncidentType(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Creating new Incident Type")
 	var iTR CreIncTypeReq
 	json.NewDecoder(r.Body).Decode(&iTR)
 	id, err := s.Store.CreateIncidentType(iTR.Name)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, &incident.IncidentType{
+	iT := &incident.IncidentType{
 		Id:   id,
 		Name: iTR.Name,
-	})
-}
-
-func (s *IncidentApi) api_GetIncidentTypeById(w http.ResponseWriter, r *http.Request) error {
-	id := mux.Vars(r)["id"]
-	inc, err := s.Store.GetIncidentTypeBy("id", id)
-	if err != nil {
-		return err
 	}
-	return writeJSON(w, http.StatusOK, inc)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{iT}), nil
 }
 
-func (s *IncidentApi) api_DeleteIncidentType(w http.ResponseWriter, r *http.Request) error {
+func (s *IncidentApi) api_GetIncidentTypeById(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
+	id := mux.Vars(r)["id"]
+	iT, err := s.Store.GetIncidentTypeBy("id", id)
+	if err != nil {
+		return nil, InternalServerError(err, r.RequestURI)
+	}
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{iT}), nil
+}
+
+func (s *IncidentApi) api_DeleteIncidentType(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	id := mux.Vars(r)["id"]
 	if err := s.Store.DeleteIncidentType(id); err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 	res_map := make(map[string]any)
 	res_map["Message"] = fmt.Sprintf(`IncidentType with ID: %s was deleted`, id)
-	return writeJSON(w, http.StatusOK, res_map)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res_map}), nil
 }

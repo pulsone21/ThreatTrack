@@ -27,7 +27,7 @@ func (t *SuiteTest) Test1GetAllIocs() {
 		return
 	}
 	ACTUAL := string(body)
-	EXPECTED := "[{\"id\":\"49c9793c-8492-468b-8ae0-64e37eb01fa0\",\"value\":\"youtube.com\",\"iocType\":{\"id\":2,\"name\":\"DOMAIN\"},\"verdict\":\"Neutral\"},{\"id\":\"b7a8ae7e-55ae-4983-bd36-ba26c5320487\",\"value\":\"google.com\",\"iocType\":{\"id\":2,\"name\":\"DOMAIN\"},\"verdict\":\"Neutral\"}]"
+	EXPECTED := "[{\"id\":\"49c9793c-8492-468b-8ae0-64e37eb01fa0\",\"value\":\"youtube.com\",\"iocType\":{\"id\":2,\"name\":\"DOMAIN\"},\"verdict\":\"Neutral\"},{\"id\":\"b7a8ae7e-55ae-4983-bd36-ba26c5320487\",\"value\":\"google.com\",\"iocType\":{\"id\":2,\"name\":\"DOMAIN\"},\"verdict\":\"Neutral\"}]\n"
 	t.Assertions.Equal(EXPECTED, ACTUAL, fmt.Sprintf("GetAllIocs - FAILED - Expected %v but got %v", EXPECTED, ACTUAL))
 }
 
@@ -48,7 +48,7 @@ func (t *SuiteTest) Test1getAllIocTypes() {
 	}
 
 	ACTUAL := string(body)
-	EXPECTED := "[{\"id\":1,\"name\":\"URL\"},{\"id\":2,\"name\":\"DOMAIN\"}]"
+	EXPECTED := "[{\"id\":1,\"name\":\"URL\"},{\"id\":2,\"name\":\"DOMAIN\"}]\n"
 	t.Assertions.Equal(EXPECTED, ACTUAL, fmt.Sprintf("GetAllIocType - FAILED - Expected %v but got %v", EXPECTED, ACTUAL))
 }
 

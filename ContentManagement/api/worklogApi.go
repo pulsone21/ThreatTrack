@@ -31,10 +31,10 @@ func CreateWorklogApi(db *sql.DB, ser *ApiServer) *WorklogApi {
 }
 
 func (s *WorklogApi) createHandles(ser *ApiServer) {
-	ser.HandleFunc("/worklog", createHandleFunc(s.api_CreateWorklog)).Methods("POST")
-	ser.HandleFunc("/worklog", createHandleFunc(s.api_GetWorklogs)).Methods("GET")
-	ser.HandleFunc("/worklog", createHandleFunc(s.api_DeleteWorklog)).Methods("DELETE")
-	ser.HandleFunc("/worklog/{id}", createHandleFunc(s.api_UpdateWorklog)).Methods("PUT")
+	//ser.HandleFunc("/worklog", createHandleFunc(s.api_CreateWorklog)).Methods("POST")
+	//ser.HandleFunc("/worklog", createHandleFunc(s.api_GetWorklogs)).Methods("GET")
+	//ser.HandleFunc("/worklog", createHandleFunc(s.api_DeleteWorklog)).Methods("DELETE")
+	//ser.HandleFunc("/worklog/{id}", createHandleFunc(s.api_UpdateWorklog)).Methods("PUT")
 }
 
 func (a *WorklogApi) api_CreateWorklog(w http.ResponseWriter, r *http.Request) error {

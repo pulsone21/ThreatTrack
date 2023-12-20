@@ -46,42 +46,49 @@ func (api *TaskApi) createHandles(ser *ApiServer) {
 
 // API FUNCTIONS FOR TASKS
 
-func (s *TaskApi) api_GetAllTasks(w http.ResponseWriter, r *http.Request) error {
+func (s *TaskApi) api_GetAllTasks(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Requesting All Tasks API Handler")
 	tasks, err := s.Store.GetAllTasks()
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, tasks)
+	return NewApiResponse(http.StatusOK, r.RequestURI, tasks), nil
 }
 
-func (s *TaskApi) api_GetTaskByID(w http.ResponseWriter, r *http.Request) error {
+func (s *TaskApi) api_GetTaskByID(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Request for Getting Task by ID")
 	id := mux.Vars(r)["id"]
 	task, err := s.Store.GetTaskByID(id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, task)
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{task}), nil
 }
 
-func (s *TaskApi) api_CreateTask(w http.ResponseWriter, r *http.Request) error {
+func (s *TaskApi) api_CreateTask(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Request for Creating Task")
 	var tR CreTask
 	json.NewDecoder(r.Body).Decode(&tR)
 	incId, err1 := uuid.Parse(tR.Incident)
 	usrId, err2 := uuid.Parse(tR.Assignee)
 	if err := errors.Join(err1, err2); err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
 	task := task.NewTask(tR.Title, tR.Description, usrId, incId, task.TaskPriority(tR.Priority), task.TaskSatus(tR.Status))
-	return s.Store.CreateTask(task)
-
+	err := s.Store.CreateTask(task)
+	if err != nil {
+		return nil, InternalServerError(err, r.RequestURI)
+	}
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{task}), nil
 }
 
-func (s *TaskApi) api_UpdateTask(w http.ResponseWriter, r *http.Request) error {
+func (s *TaskApi) api_UpdateTask(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	// TODO Implement
-	return fmt.Errorf("not implemented")
+	return nil, &ApiError{
+		error:      fmt.Errorf("not implemented"),
+		StatusCode: http.StatusNotImplemented,
+		RequestUrl: r.RequestURI,
+	}
 	// fmt.Println("Request for Updating Task")
 	// id := mux.Vars(r)["id"]
 	// var taskReq CreTask
@@ -89,21 +96,22 @@ func (s *TaskApi) api_UpdateTask(w http.ResponseWriter, r *http.Request) error {
 	// tT, err := s.Store.GetTaskTypeBy("id", fmt.Sprint(taskReq.TaskType))
 	// if err != nil {
 	// fmt.Println("error in get TaskType request")
-	// return err
+	// return nil, InternalServerError(err, r.RequestURI)
 	// }
 	// task, err := s.Store.UpdateTask(id, taskReq.Value, *tT, taskReq.IncidentIDs)
 	// if err != nil {
-	// return err
+	// return nil, InternalServerError(err, r.RequestURI)
 	// }
 	// return writeJSON(w, http.StatusOK, task)
 }
 
-func (s *TaskApi) api_DeleteTask(w http.ResponseWriter, r *http.Request) error {
+func (s *TaskApi) api_DeleteTask(w http.ResponseWriter, r *http.Request) (*ApiResponse, *ApiError) {
 	fmt.Println("Request for Deleting Task")
 	id := mux.Vars(r)["id"]
 	err := s.Store.DeleteTask(id)
 	if err != nil {
-		return err
+		return nil, InternalServerError(err, r.RequestURI)
 	}
-	return writeJSON(w, http.StatusOK, "Task deleted successfully")
+	res := map[string]string{"Message": fmt.Sprintf("Task with id: %s deleted successfully", id)}
+	return NewApiResponse(http.StatusOK, r.RequestURI, []interface{}{res}), nil
 }
