@@ -11,7 +11,7 @@ import (
 func (s *MySqlStorage) RespondQuery(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
 	uri := ctx.Value("uri").(string)
-	sql, err := LoadRawSQL(fmt.Sprintf("%s/GetAll.sql", entity))
+	rawSql, err := LoadRawSQL(fmt.Sprintf("%s/GetAll.sql", entity))
 	if err != nil {
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
@@ -22,14 +22,14 @@ func (s *MySqlStorage) RespondQuery(ctx context.Context, w http.ResponseWriter, 
 			return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), r.RequestURI)
 		}
 	}
-	finalSql := FinalizeSQL(sql, entity, *qP)
+	finalSql := FinalizeSQL(rawSql, entity, *qP)
 	rows, err := s.Db.Query(finalSql)
 	if err != nil {
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
 	if rows.Err() != nil {
 		if rows.Err() == sql.ErrNoRows {
-			return nil, fmt.Errorf("no %s found", entity)
+			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)
 		}
 		return nil, types.InternalServerError(rows.Err(), r.RequestURI)
 	}
