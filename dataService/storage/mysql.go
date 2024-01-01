@@ -67,7 +67,6 @@ func (s *MySqlStorage) HandleGetAll(ctx context.Context, w http.ResponseWriter, 
 }
 
 func (s *MySqlStorage) HandleGetQuery(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
-	return nil, types.NewApiError(http.StatusNotImplemented, r.RequestURI, fmt.Errorf("not Implemented"))
 	return s.RespondQuery(ctx, w, r)
 }
 

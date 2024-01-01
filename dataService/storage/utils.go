@@ -87,8 +87,12 @@ func CheckWhitelist(key, value string, whitelist Whitelist) bool {
 		return false
 	}
 	if whitelist[key] == nil {
-
+		return false
 	}
-
+	for _, v := range whitelist[key] {
+		if v == value {
+			return true
+		}
+	}
 	return false
 }
