@@ -27,6 +27,9 @@ func InternalServerError(err error, uri string) *ApiError {
 func BadRequestError(err error, uri string) *ApiError {
 	return NewApiError(http.StatusBadRequest, uri, err)
 }
+func NotFoundError(err error, uri string) *ApiError {
+	return NewApiError(http.StatusNotFound, uri, err)
+}
 
 func NewApiError(status int, uri string, err error) *ApiError {
 	return &ApiError{

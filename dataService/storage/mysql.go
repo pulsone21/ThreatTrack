@@ -47,13 +47,13 @@ func (s *MySqlStorage) setUpDB(dbConf DBConfig) {
 
 func (s *MySqlStorage) HandleGetAll(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
-	sql, err := LoadRawSQL(fmt.Sprintf("%s/GetAll.sql", entity))
+	loadedSql, err := LoadRawSQL(fmt.Sprintf("%s/GetAll.sql", entity))
 	if err != nil {
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
 	withParams := false
 	qP := NewQueryParameter(r.URL.Query(), withParams)
-	res, err := s.Db.Query(sql, qP.Limit, qP.Offset)
+	res, err := s.Db.Query(loadedSql, qP.Limit, qP.Offset)
 	if err != nil {
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
@@ -74,11 +74,11 @@ func (s *MySqlStorage) HandleGetQuery(ctx context.Context, w http.ResponseWriter
 func (s *MySqlStorage) HandleGetID(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
 	id := r.URL.Path[len(r.URL.Path)-1]
-	sql, err := LoadRawSQL(fmt.Sprintf("%s/GetById.sql", entity))
+	loadedSql, err := LoadRawSQL(fmt.Sprintf("%s/GetById.sql", entity))
 	if err != nil {
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
-	res := s.Db.QueryRow(sql, id)
+	res := s.Db.QueryRow(loadedSql, id)
 	if res.Err() != nil {
 		if res.Err() == sql.ErrNoRows {
 			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)

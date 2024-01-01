@@ -29,7 +29,7 @@ func (s *MySqlStorage) RespondQuery(ctx context.Context, w http.ResponseWriter, 
 	}
 	if rows.Err() != nil {
 		if rows.Err() == sql.ErrNoRows {
-			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)
+			return nil, fmt.Errorf("no %s found", entity)
 		}
 		return nil, types.InternalServerError(rows.Err(), r.RequestURI)
 	}
