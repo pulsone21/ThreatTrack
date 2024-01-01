@@ -57,6 +57,12 @@ func (s *MySqlStorage) HandleGetAll(ctx context.Context, w http.ResponseWriter, 
 	if err != nil {
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
+	if res.Err() != nil {
+		if res.Err() == sql.ErrNoRows {
+			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)
+		}
+		return nil, types.InternalServerError(res.Err(), r.RequestURI)
+	}
 	return s.RespondGetAll(ctx, res)
 }
 
@@ -73,6 +79,12 @@ func (s *MySqlStorage) HandleGetID(ctx context.Context, w http.ResponseWriter, r
 		return nil, types.InternalServerError(err, r.RequestURI)
 	}
 	res := s.Db.QueryRow(sql, id)
+	if res.Err() != nil {
+		if res.Err() == sql.ErrNoRows {
+			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)
+		}
+		return nil, types.InternalServerError(res.Err(), r.RequestURI)
+	}
 	return s.RespondGetId(ctx, res)
 }
 
