@@ -1,0 +1,1 @@
+INSERT INTO incident_types (name) VALUES (?)
