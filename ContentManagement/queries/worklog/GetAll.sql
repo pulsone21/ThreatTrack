@@ -1,1 +1,0 @@
-SELECT worklogs.*, users.id, incidents.id FROM worklogs

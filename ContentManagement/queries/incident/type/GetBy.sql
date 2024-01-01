@@ -1,1 +1,0 @@
-SELECT * FROM incident_types WHERE %s = ?

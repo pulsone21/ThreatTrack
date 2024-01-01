@@ -1,1 +1,0 @@
-INSERT INTO worklogs (id, writerId, incidentId, content, created_at) VALUES (?, ?, ?, ?, ?)

@@ -1,1 +1,0 @@
-DELETE FROM worklogs WHERE id = ?
