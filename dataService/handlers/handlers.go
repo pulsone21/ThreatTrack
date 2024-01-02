@@ -21,6 +21,13 @@ func CreateHandlers(r *mux.Router, s storage.Storage) {
 	inc_sR.HandleFunc("/{id}", newHandleFunc(s.HandleDelete)).Methods(http.MethodDelete)
 	inc_sR.HandleFunc("/query", newHandleFunc(s.HandleGetQuery)).Methods(http.MethodGet)
 
+	it_sR := r.PathPrefix("/incidenttypes").Subrouter()
+	it_sR.HandleFunc("", newHandleFunc(s.HandleGetAll)).Methods(http.MethodGet)
+	it_sR.HandleFunc("", newHandleFunc(s.HandleCreate)).Methods(http.MethodPost)
+	it_sR.HandleFunc("/{id}", newHandleFunc(s.HandleGetID)).Methods(http.MethodGet)
+	it_sR.HandleFunc("/{id}", newHandleFunc(s.HandleUpdate)).Methods(http.MethodPut)
+	it_sR.HandleFunc("/{id}", newHandleFunc(s.HandleDelete)).Methods(http.MethodDelete)
+
 }
 
 func newHandleFunc(apiF types.APIFunction) http.HandlerFunc {
