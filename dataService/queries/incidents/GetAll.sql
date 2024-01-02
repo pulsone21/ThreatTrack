@@ -11,5 +11,5 @@ FROM
 LEFT JOIN
 	incidenttypes ON incidents.type = incidenttypes.id
 ORDER BY incidents.creationdate DESC
-LIMIT ? OFFSET ?
+LIMIT ? OFFSET ?;
 	
