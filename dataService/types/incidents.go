@@ -7,12 +7,13 @@ import (
 )
 
 type Incident struct {
-	Id           uuid.UUID        `json:"id"`
-	Name         string           `json:"name"`
-	Severity     IncidentSeverity `json:"severity"`
-	Status       IncidentStatus   `json:"status"`
-	IncidentType IncidentType     `json:"type"`
-	Creationdate uint             `json:"creationdate"`
+	Id           uuid.UUID      `json:"id"`
+	Name         string         `json:"name"`
+	Severity     Priority       `json:"severity"`
+	Status       IncidentStatus `json:"status"`
+	IncidentType IncidentType   `json:"type"`
+	Creationdate uint           `json:"creationdate"`
+	Tasks        []Task         `json:"tasks"`
 }
 
 type IncidentType struct {
@@ -20,23 +21,23 @@ type IncidentType struct {
 	Name string `json:"name"`
 }
 type IncidentStatus string
-type IncidentSeverity string
+type Priority string
 
 var IncidentQueryParams = []string{"id", "name", "severity", "status", "type", "creationdate"}
 var IncidentTypeQueryParams = []string{"name", "id"}
 
 const (
-	Low      IncidentSeverity = "Low"
-	Medium   IncidentSeverity = "Medium"
-	High     IncidentSeverity = "High"
-	Critical IncidentSeverity = "Critical"
-	Pending  IncidentStatus   = "Pending"
-	Open     IncidentStatus   = "Open"
-	Active   IncidentStatus   = "Active"
-	Closed   IncidentStatus   = "Closed"
+	Low      Priority       = "Low"
+	Medium   Priority       = "Medium"
+	High     Priority       = "High"
+	Critical Priority       = "Critical"
+	Pending  IncidentStatus = "Pending"
+	Open     IncidentStatus = "Open"
+	Active   IncidentStatus = "Active"
+	Closed   IncidentStatus = "Closed"
 )
 
-func NewIncident(name string, severity IncidentSeverity, incType IncidentType) *Incident {
+func NewIncident(name string, severity Priority, incType IncidentType) *Incident {
 	return &Incident{
 		Id:           uuid.New(),
 		Name:         name,

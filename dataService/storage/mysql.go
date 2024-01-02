@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -16,6 +17,8 @@ type MySqlStorage struct {
 	Db                *sql.DB
 	IncidentStore     *IncidentStore
 	IncidentTypeStore *IncidentTypeStore
+	UserStore         *UserStore
+	TaskStore         *TaskStore
 }
 
 func NewMySqlStorage(dbConf DBConfig) *MySqlStorage {
@@ -23,6 +26,8 @@ func NewMySqlStorage(dbConf DBConfig) *MySqlStorage {
 	storage.setUpDB(dbConf)
 	storage.IncidentStore = NewIncidentStore(storage)
 	storage.IncidentTypeStore = NewIncidentTypeStore(storage)
+	storage.UserStore = NewUserStore(storage)
+	storage.TaskStore = NewTaskStore(storage)
 	return storage
 }
 
@@ -53,111 +58,141 @@ func (s *MySqlStorage) setUpDB(dbConf DBConfig) {
 
 func (s *MySqlStorage) HandleGetAll(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
+	var value interface{}
+	var err *types.ApiError
 	withParams := false
 	qP := NewQueryParameter(r.URL.Query(), withParams)
 	switch entity {
 	case "incidents":
-		incs, err := s.IncidentStore.GetAll(ctx, *qP)
-		if err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), incs), nil
+		value, err = s.IncidentStore.GetAll(ctx, *qP)
 	case "incidenttypes":
-		iTs, err := s.IncidentTypeStore.GetAll(ctx, *qP)
-		if err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), iTs), nil
+		value, err = s.IncidentTypeStore.GetAll(ctx, *qP)
+	case "users":
+		value, err = s.UserStore.GetAll(ctx, *qP)
+	case "tasks":
+		value, err = s.TaskStore.GetAll(ctx, *qP)
 	default:
 		return nil, types.NotImplementedError(fmt.Errorf("entity: %s not implemented", entity), ctx.Value("uri").(string))
 	}
+	if err != nil {
+		return nil, err
+	}
+	return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), value), nil
 }
 
 func (s *MySqlStorage) HandleGetQuery(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
 	uri := ctx.Value("uri").(string)
+	var value interface{}
+	var err *types.ApiError
 	withParams := true
 	qP := NewQueryParameter(r.URL.Query(), withParams)
 	switch entity {
 	case "incidents":
-		incs, err := s.IncidentStore.GetQuery(ctx, *qP)
-		if err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, uri, incs), nil
+		value, err = s.IncidentStore.GetQuery(ctx, *qP)
+	case "tasks":
+		value, err = s.TaskStore.GetQuery(ctx, *qP)
 	default:
 		return nil, types.NotImplementedError(fmt.Errorf("entity: %s not implemented", entity), uri)
 	}
+	if err != nil {
+		return nil, err
+	}
+	return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), value), nil
 }
 
 func (s *MySqlStorage) HandleGetID(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
 	id := mux.Vars(r)["id"]
+	var value interface{}
+	var err *types.ApiError
 	switch entity {
 	case "incidents":
-		inc, err := s.IncidentStore.Get(ctx, id)
-		if err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), inc), nil
+		value, err = s.IncidentStore.Get(ctx, id)
 	case "incidenttypes":
-		iT, err := s.IncidentTypeStore.Get(ctx, id)
-		if err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), iT), nil
+		value, err = s.IncidentTypeStore.Get(ctx, id)
+	case "users":
+		value, err = s.UserStore.Get(ctx, id)
+	case "tasks":
+		value, err = s.TaskStore.Get(ctx, id)
 	default:
 		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), ctx.Value("uri").(string))
 	}
+	if err != nil {
+		return nil, err
+	}
+	return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), value), nil
 }
 
 func (s *MySqlStorage) HandleCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
 	uri := ctx.Value("uri").(string)
+	var value interface{}
+	var err *types.ApiError
+	defer r.Body.Close()
+	dec := json.NewDecoder(r.Body)
 	switch entity {
 	case "incidents":
 		var iR RequestIncident
-		json.NewDecoder(r.Body).Decode(&iR)
+		dec.Decode(&iR)
 		iT, err := s.IncidentTypeStore.Get(ctx, fmt.Sprint(iR.IncidentType))
 		if err != nil {
 			return nil, err
 		}
-		inc := types.NewIncident(iR.Name, types.IncidentSeverity(iR.Severity), *iT)
-		if _, err := s.IncidentStore.Create(ctx, inc); err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, uri, inc), nil
+		value = types.NewIncident(iR.Name, types.Priority(iR.Severity), *iT)
+		_, err = s.IncidentStore.Create(ctx, value.(*types.Incident))
 	case "incidenttypes":
 		var iR RequestIncidentType
-		json.NewDecoder(r.Body).Decode(&iR)
+		dec.Decode(&iR)
 		iT := types.NewIncidentType(iR.Name)
-		iT, err := s.IncidentTypeStore.Create(ctx, *iT)
+		value, err = s.IncidentTypeStore.Create(ctx, *iT)
+	case "users":
+		var uR RequestUser
+		dec.Decode(&uR)
+		usr := types.NewUser(uR.Firstname, uR.Lastname, uR.Email)
+		value, err = s.UserStore.Create(ctx, *usr)
+	case "tasks":
+		var tR RequestTask
+		dec.Decode(&tR)
+		owner, err := s.UserStore.Get(ctx, tR.OwnerId)
 		if err != nil {
-			return nil, err
+			return nil, types.BadRequestError(fmt.Errorf("User with id %s not found.", tR.OwnerId), uri)
 		}
-		return types.NewApiResponse(http.StatusOK, uri, iT), nil
+		inc_id, err1 := uuid.Parse(tR.IncidentID)
+		if err1 != nil {
+			return nil, types.BadRequestError(fmt.Errorf("IncidentID %s not an UUID.", tR.IncidentID), uri)
+		}
+		value = types.NewTask(tR.Title, tR.Description, *owner, inc_id)
+		_, err = s.TaskStore.Create(ctx, value.(*types.Task))
 	default:
 		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
 	}
+	if err != nil {
+		return nil, err
+	}
+	return types.NewApiResponse(http.StatusOK, uri, value), nil
 }
 func (s *MySqlStorage) HandleDelete(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
+	var err *types.ApiError
 	uri := ctx.Value("uri").(string)
 	id := mux.Vars(r)["id"]
 	switch entity {
 	case "incidents":
-		if err := s.IncidentStore.Delete(ctx, id); err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, uri, fmt.Sprintf("Incident with id: %s deleted", id)), nil
+		err = s.IncidentStore.Delete(ctx, id)
 	case "incidenttypes":
-		if err := s.IncidentTypeStore.Delete(ctx, id); err != nil {
-			return nil, err
-		}
-		return types.NewApiResponse(http.StatusOK, uri, fmt.Sprintf("IncidentType with id: %s deleted", id)), nil
+		err = s.IncidentTypeStore.Delete(ctx, id)
+	case "users":
+		err = s.UserStore.Delete(ctx, id)
+	case "tasks":
+		err = s.TaskStore.Delete(ctx, id)
 	default:
 		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
 	}
+	if err != nil {
+		return nil, err
+	}
+	return types.NewApiResponse(http.StatusOK, uri, fmt.Sprintf("%s with id: %s deleted", entity, id)), nil
 }
 
 func (s *MySqlStorage) HandleUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
