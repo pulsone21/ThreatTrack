@@ -28,6 +28,13 @@ func CreateHandlers(r *mux.Router, s storage.Storage) {
 	it_sR.HandleFunc("/{id}", newHandleFunc(s.HandleUpdate)).Methods(http.MethodPut)
 	it_sR.HandleFunc("/{id}", newHandleFunc(s.HandleDelete)).Methods(http.MethodDelete)
 
+	usr_sR := r.PathPrefix("/users").Subrouter()
+	usr_sR.HandleFunc("", newHandleFunc(s.HandleGetAll)).Methods(http.MethodGet)
+	usr_sR.HandleFunc("", newHandleFunc(s.HandleCreate)).Methods(http.MethodPost)
+	usr_sR.HandleFunc("/{id}", newHandleFunc(s.HandleGetID)).Methods(http.MethodGet)
+	usr_sR.HandleFunc("/{id}", newHandleFunc(s.HandleUpdate)).Methods(http.MethodPut)
+	usr_sR.HandleFunc("/{id}", newHandleFunc(s.HandleDelete)).Methods(http.MethodDelete)
+
 }
 
 func newHandleFunc(apiF types.APIFunction) http.HandlerFunc {
