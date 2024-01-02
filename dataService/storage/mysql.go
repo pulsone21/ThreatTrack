@@ -131,7 +131,8 @@ func (s *MySqlStorage) HandleCreate(ctx context.Context, w http.ResponseWriter, 
 		var iR RequestIncidentType
 		json.NewDecoder(r.Body).Decode(&iR)
 		iT := types.NewIncidentType(iR.Name)
-		if _, err := s.IncidentTypeStore.Create(ctx, *iT); err != nil {
+		iT, err := s.IncidentTypeStore.Create(ctx, *iT)
+		if err != nil {
 			return nil, err
 		}
 		return types.NewApiResponse(http.StatusOK, uri, iT), nil

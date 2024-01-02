@@ -90,8 +90,12 @@ func (i *IncidentTypeStore) Create(ctx context.Context, incidentType types.Incid
 	}
 	//The Id is auto incrementing in the database, so the given id from the parameters are irrelevant,
 	//since we now the acutal id only after inserting to db.
-	incidentType.Id, _ = res.LastInsertId()
-	return &incidentType, nil
+	iD, _ := res.LastInsertId()
+	iT := types.IncidentType{
+		Name: incidentType.Name,
+		Id:   iD,
+	}
+	return &iT, nil
 }
 
 func (i *IncidentTypeStore) Update(ctx context.Context, entity types.IncidentType) (*types.IncidentType, *types.ApiError) {
