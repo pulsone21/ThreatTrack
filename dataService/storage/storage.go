@@ -23,7 +23,7 @@ type Storage interface {
 	HandleUpdate(context.Context, http.ResponseWriter, *http.Request) (*types.ApiResponse, *types.ApiError)
 }
 
-type EntityStoreInterface[T types.Entity] interface {
+type EntityStore[T types.Entity] interface {
 	Get(ctx context.Context, id string) (*T, *types.ApiError)
 	GetAll(ctx context.Context, qP QueryParameter) (*[]T, *types.ApiError)
 	GetQuery(ctx context.Context, qP QueryParameter) (*[]T, *types.ApiError)

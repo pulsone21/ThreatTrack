@@ -15,7 +15,7 @@ type RequestIncident struct {
 
 type IncidentStore struct {
 	storage *MySqlStorage
-	EntityStoreInterface[*types.Incident]
+	EntityStore[*types.Incident]
 	db *sql.DB
 }
 

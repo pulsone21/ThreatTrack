@@ -159,7 +159,9 @@ func (s *MySqlStorage) HandleDelete(ctx context.Context, w http.ResponseWriter, 
 		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
 	}
 }
+
 func (s *MySqlStorage) HandleUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	uri := ctx.Value("uri").(string)
+	// TODO Implement
 	return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
 }
