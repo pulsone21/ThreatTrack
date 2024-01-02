@@ -21,7 +21,15 @@ type Storage interface {
 	HandleCreate(context.Context, http.ResponseWriter, *http.Request) (*types.ApiResponse, *types.ApiError)
 	HandleDelete(context.Context, http.ResponseWriter, *http.Request) (*types.ApiResponse, *types.ApiError)
 	HandleUpdate(context.Context, http.ResponseWriter, *http.Request) (*types.ApiResponse, *types.ApiError)
-	CheckWhitelist(string, string, string) bool
+}
+
+type EntityStoreInterface[T types.Entity] interface {
+	Get(ctx context.Context, id string) (*T, *types.ApiError)
+	GetAll(ctx context.Context, qP QueryParameter) (*[]T, *types.ApiError)
+	GetQuery(ctx context.Context, qP QueryParameter) (*[]T, *types.ApiError)
+	Create(ctx context.Context, entity T) (*T, *types.ApiError)
+	Update(ctx context.Context, entity T) (*T, *types.ApiError)
+	Delete(ctx context.Context, id string) *types.ApiError
 }
 
 type Whitelist map[string][]string

@@ -28,6 +28,14 @@ func NewQueryParameter(urlQuery url.Values, withParams bool) *QueryParameter {
 	}
 }
 
+func DefaultParams() *QueryParameter {
+	return &QueryParameter{
+		Limit:  MAX_LIMIT,
+		Offset: 0,
+		Query:  map[string]string{},
+	}
+}
+
 func ExtractUrlQueries(uV url.Values, withAdditionalParams bool) (int, int, map[string]string) {
 	limit, _ := strconv.Atoi(uV.Get("limit"))
 	if limit == 0 {

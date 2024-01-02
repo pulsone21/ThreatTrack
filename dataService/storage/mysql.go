@@ -4,19 +4,25 @@ import (
 	"context"
 	"data-service/types"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 type MySqlStorage struct {
-	Db *sql.DB
+	Db                *sql.DB
+	IncidentStore     *IncidentStore
+	IncidentTypeStore *IncidentTypeStore
 }
 
 func NewMySqlStorage(dbConf DBConfig) *MySqlStorage {
 	storage := &MySqlStorage{}
 	storage.setUpDB(dbConf)
+	storage.IncidentStore = NewIncidentStore(storage)
+	storage.IncidentTypeStore = NewIncidentTypeStore(storage)
 	return storage
 }
 
@@ -47,57 +53,112 @@ func (s *MySqlStorage) setUpDB(dbConf DBConfig) {
 
 func (s *MySqlStorage) HandleGetAll(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
-	loadedSql, err := LoadRawSQL(fmt.Sprintf("%s/GetAll.sql", entity))
-	if err != nil {
-		return nil, types.InternalServerError(err, r.RequestURI)
-	}
 	withParams := false
 	qP := NewQueryParameter(r.URL.Query(), withParams)
-	res, err := s.Db.Query(loadedSql, qP.Limit, qP.Offset)
-	if err != nil {
-		return nil, types.InternalServerError(err, r.RequestURI)
-	}
-	if res.Err() != nil {
-		if res.Err() == sql.ErrNoRows {
-			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)
+	switch entity {
+	case "incidents":
+		incs, err := s.IncidentStore.GetAll(ctx, *qP)
+		if err != nil {
+			return nil, err
 		}
-		return nil, types.InternalServerError(res.Err(), r.RequestURI)
+		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), incs), nil
+	case "incidenttypes":
+		iTs, err := s.IncidentTypeStore.GetAll(ctx, *qP)
+		if err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), iTs), nil
+	default:
+		return nil, types.NotImplementedError(fmt.Errorf("entity: %s not implemented", entity), ctx.Value("uri").(string))
 	}
-	return s.RespondGetAll(ctx, res)
 }
 
 func (s *MySqlStorage) HandleGetQuery(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
-	return s.RespondQuery(ctx, w, r)
+	entity := ctx.Value("entity").(string)
+	uri := ctx.Value("uri").(string)
+	withParams := true
+	qP := NewQueryParameter(r.URL.Query(), withParams)
+	switch entity {
+	case "incidents":
+		incs, err := s.IncidentStore.GetQuery(ctx, *qP)
+		if err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, uri, incs), nil
+	default:
+		return nil, types.NotImplementedError(fmt.Errorf("entity: %s not implemented", entity), uri)
+	}
 }
 
 func (s *MySqlStorage) HandleGetID(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
-	id := r.URL.Path[len(r.URL.Path)-1]
-	loadedSql, err := LoadRawSQL(fmt.Sprintf("%s/GetById.sql", entity))
-	if err != nil {
-		return nil, types.InternalServerError(err, r.RequestURI)
-	}
-	res := s.Db.QueryRow(loadedSql, id)
-	if res.Err() != nil {
-		if res.Err() == sql.ErrNoRows {
-			return nil, types.NotFoundError(fmt.Errorf("no %s found", entity), r.RequestURI)
+	id := mux.Vars(r)["id"]
+	switch entity {
+	case "incidents":
+		inc, err := s.IncidentStore.Get(ctx, id)
+		if err != nil {
+			return nil, err
 		}
-		return nil, types.InternalServerError(res.Err(), r.RequestURI)
+		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), inc), nil
+	case "incidenttypes":
+		iT, err := s.IncidentTypeStore.Get(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, ctx.Value("uri").(string), iT), nil
+	default:
+		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), ctx.Value("uri").(string))
 	}
-	return s.RespondGetId(ctx, res)
 }
 
 func (s *MySqlStorage) HandleCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
 	entity := ctx.Value("entity").(string)
-	rawSql, err := LoadRawSQL(fmt.Sprintf("%s/create.sql", entity))
-	if err != nil {
-		return nil, types.InternalServerError(err, r.RequestURI)
+	uri := ctx.Value("uri").(string)
+	switch entity {
+	case "incidents":
+		var iR RequestIncident
+		json.NewDecoder(r.Body).Decode(&iR)
+		iT, err := s.IncidentTypeStore.Get(ctx, fmt.Sprint(iR.IncidentType))
+		if err != nil {
+			return nil, err
+		}
+		inc := types.NewIncident(iR.Name, types.IncidentSeverity(iR.Severity), *iT)
+		if _, err := s.IncidentStore.Create(ctx, inc); err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, uri, inc), nil
+	case "incidenttypes":
+		var iR RequestIncidentType
+		json.NewDecoder(r.Body).Decode(&iR)
+		iT := types.NewIncidentType(iR.Name)
+		if _, err := s.IncidentTypeStore.Create(ctx, *iT); err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, uri, iT), nil
+	default:
+		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
 	}
-	return s.CreateEntity(ctx, rawSql, r.Body)
 }
 func (s *MySqlStorage) HandleDelete(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
-	return nil, nil
+	entity := ctx.Value("entity").(string)
+	uri := ctx.Value("uri").(string)
+	id := mux.Vars(r)["id"]
+	switch entity {
+	case "incidents":
+		if err := s.IncidentStore.Delete(ctx, id); err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, uri, fmt.Sprintf("Incident with id: %s deleted", id)), nil
+	case "incidenttypes":
+		if err := s.IncidentTypeStore.Delete(ctx, id); err != nil {
+			return nil, err
+		}
+		return types.NewApiResponse(http.StatusOK, uri, fmt.Sprintf("IncidentType with id: %s deleted", id)), nil
+	default:
+		return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
+	}
 }
 func (s *MySqlStorage) HandleUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) (*types.ApiResponse, *types.ApiError) {
-	return nil, nil
+	uri := ctx.Value("uri").(string)
+	return nil, types.NotImplementedError(fmt.Errorf("not implemented"), uri)
 }
