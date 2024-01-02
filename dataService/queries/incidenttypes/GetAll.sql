@@ -1,3 +1,3 @@
-SELECT * FROM incident_types 
-ORDER BY incident_types.id
+SELECT * FROM incidenttypes 
+ORDER BY incidenttypes.id
 LIMIT ? OFFSET ?

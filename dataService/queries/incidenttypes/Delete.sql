@@ -1,1 +1,1 @@
-DELETE FROM incident_types WHERE id = ?
+DELETE FROM incidenttypes WHERE incidenttypes.id = ?

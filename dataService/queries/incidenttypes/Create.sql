@@ -1,1 +1,1 @@
-INSERT INTO incident_types (name) VALUES (?)
+INSERT INTO incidenttypes (name) VALUES (?)
