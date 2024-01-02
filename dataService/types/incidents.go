@@ -54,7 +54,7 @@ func NewIncidentType(name string) *IncidentType {
 }
 
 func (i *Incident) ScanTo(scan ScanFunc) error {
-	err := scan(
+	return scan(
 		&i.Id,
 		&i.Name,
 		&i.Severity,
@@ -62,18 +62,10 @@ func (i *Incident) ScanTo(scan ScanFunc) error {
 		&i.Creationdate,
 		&i.IncidentType.Id,
 		&i.IncidentType.Name)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (iT *IncidentType) ScanTo(scan ScanFunc) error {
-	err := scan(
+	return scan(
 		&iT.Id,
 		&iT.Name)
-	if err != nil {
-		return err
-	}
-	return nil
 }
