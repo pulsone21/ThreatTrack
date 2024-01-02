@@ -9,6 +9,6 @@ SELECT
 FROM
 	incidents
 LEFT JOIN
-	incident_types ON incidents.type = incident_types.id
+	incidenttypes ON incidents.type = incidenttypes.id
 WHERE incidents.id = ?
     
