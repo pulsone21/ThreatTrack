@@ -135,9 +135,9 @@ func (s *MySqlStorage) HandleCreate(ctx context.Context, w http.ResponseWriter, 
 	case "incidents":
 		var iR RequestIncident
 		dec.Decode(&iR)
-		iT, err := s.IncidentTypeStore.Get(ctx, fmt.Sprint(iR.IncidentType))
-		if err != nil {
-			return nil, err
+		iT, err1 := s.IncidentTypeStore.Get(ctx, fmt.Sprint(iR.IncidentType))
+		if err1 != nil {
+			return nil, err1
 		}
 		value = types.NewIncident(iR.Name, types.Priority(iR.Severity), *iT)
 		_, err = s.IncidentStore.Create(ctx, value.(*types.Incident))
@@ -154,13 +154,13 @@ func (s *MySqlStorage) HandleCreate(ctx context.Context, w http.ResponseWriter, 
 	case "tasks":
 		var tR RequestTask
 		dec.Decode(&tR)
-		owner, err := s.UserStore.Get(ctx, tR.OwnerId)
-		if err != nil {
-			return nil, types.BadRequestError(fmt.Errorf("User with id %s not found.", tR.OwnerId), uri)
+		owner, err2 := s.UserStore.Get(ctx, tR.OwnerId)
+		if err2 != nil {
+			return nil, err2
 		}
 		inc_id, err1 := uuid.Parse(tR.IncidentID)
 		if err1 != nil {
-			return nil, types.BadRequestError(fmt.Errorf("IncidentID %s not an UUID.", tR.IncidentID), uri)
+			return nil, types.BadRequestError(fmt.Errorf("incidentID %s not an UUID", tR.IncidentID), uri)
 		}
 		value = types.NewTask(tR.Title, tR.Description, *owner, inc_id)
 		_, err = s.TaskStore.Create(ctx, value.(*types.Task))
