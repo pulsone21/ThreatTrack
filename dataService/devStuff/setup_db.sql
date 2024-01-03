@@ -32,8 +32,6 @@ CREATE TABLE IF NOT EXISTS iocs (
 );
 
 
-
-
 CREATE TABLE IF NOT EXISTS iocsincidents (
   id int NOT NULL AUTO_INCREMENT,
   iocId varchar(50) DEFAULT NULL,
@@ -43,31 +41,40 @@ CREATE TABLE IF NOT EXISTS iocsincidents (
   FOREIGN KEY (incidentId) REFERENCES incidents (id)
 );
 
-CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(50) PRIMARY KEY NOT NULL,
-    firstName VARCHAR(255) NOT NULL,
-    lastName VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    created_At VARCHAR(50),
-    fullname VARCHAR(255)
-);
+CREATE TABLE IF NOT EXISTS  users (
+        id varchar(50) NOT NULL,
+        firstName varchar(255) NOT NULL,
+        lastName varchar(255) NOT NULL,
+        email varchar(255) NOT NULL,
+        created_at varchar(50) DEFAULT NULL,
+        fullname varchar(255) DEFAULT NULL,
+        PRIMARY KEY (id)
+    );
 
-CREATE TABLE IF NOT EXISTS task (
-    id varchar(255) NOT NULL PRIMARY KEY,
-    Title varchar(255) NOT NULL,
-    Description text NOT NULL,
-    Assignee varchar(255) DEFAULT NULL,
-    Incident varchar(255) DEFAULT NULL,
-    Status enum('Open', 'In Progress', 'Done')  NOT NULL DEFAULT 'Open',
-    Priority enum(
-        'Low',
-        'Medium',
-        'High',
-        'Critical'
-    ) DEFAULT 'Low',
-    FOREIGN KEY (Assignee) REFERENCES users (id),
-    FOREIGN KEY (Incident) REFERENCES incidents (id)
-);
+CREATE TABLE IF NOT EXISTS tasks (
+        id varchar(255) NOT NULL,
+        title varchar(255)  NOT NULL,
+        description text  NOT NULL,
+        owner_id varchar(255)  NOT NULL,
+        incident_id varchar(255)  NOT NULL,
+        status enum(
+            'Backlog',
+            'Doing',
+            'Review',
+            'Done'
+        )  NOT NULL DEFAULT 'Backlog',
+        priority enum(
+            'Low',
+            'Medium',
+            'High',
+            'Critical'
+        )  NOT NULL DEFAULT 'Low',
+        PRIMARY KEY (id),
+        KEY owner_id (owner_id),
+        KEY incident_id (incident_id),
+        FOREIGN KEY (owner_id) REFERENCES users (id),
+        FOREIGN KEY (incident_id) REFERENCES incidents (id)
+    );
 
 CREATE TABLE IF NOT EXISTS taskcomments (
     id varchar(255) NOT NULL COMMENT 'UUID',
@@ -79,18 +86,18 @@ CREATE TABLE IF NOT EXISTS taskcomments (
     KEY writer (writer),
     KEY task (task),
     FOREIGN KEY (writer) REFERENCES users (id),
-    FOREIGN KEY (task) REFERENCES task (id)
+    FOREIGN KEY (task) REFERENCES tasks (id)
 ); 
 
-CREATE TABLE IF NOT EXISTS worklogs (
-    id varchar(50) NOT NULL,
-    writerId varchar(50) NOT NULL,
-    incidentId varchar(50) NOT NULL,
-    content text  NOT NULL,
-    created_at varchar(50) DEFAULT NULL,
-    PRIMARY KEY (id),
-    KEY writerId (writerId),
-    KEY incidentId (incidentId),
-    FOREIGN KEY (writerId) REFERENCES users (id),
-    FOREIGN KEY (incidentId) REFERENCES incidents (id)
-);
+-- CREATE TABLE IF NOT EXISTS worklogs (
+--     id varchar(50) NOT NULL,
+--     writerId varchar(50) NOT NULL,
+--     incidentId varchar(50) NOT NULL,
+--     content text  NOT NULL,
+--     created_at varchar(50) DEFAULT NULL,
+--     PRIMARY KEY (id),
+--     KEY writerId (writerId),
+--     KEY incidentId (incidentId),
+--     FOREIGN KEY (writerId) REFERENCES users (id),
+--     FOREIGN KEY (incidentId) REFERENCES incidents (id)
+-- );
