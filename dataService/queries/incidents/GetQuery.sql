@@ -10,6 +10,7 @@ FROM
 	incidents
 LEFT JOIN
 	incidenttypes ON incidents.type = incidenttypes.id
-ORDER BY incidents.creationdate DESC
 %s
+ORDER BY incidents.creationdate DESC
+LIMIT ? OFFSET ?;
 	

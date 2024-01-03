@@ -11,6 +11,7 @@ SELECT
 FROM tasks 
 LEFT JOIN
 	users ON tasks.id = users.id
-ORDER BY tasks.incident_id DESC
 %s
+ORDER BY tasks.incident_id DESC
+LIMIT ? OFFSET ?;
 	
