@@ -63,10 +63,10 @@ func (s *MySqlStorage) HandleGetAll(ctx context.Context, w http.ResponseWriter, 
 	withParams := false
 	qP := NewQueryParameter(r.URL.Query(), withParams)
 	switch entity {
-	case "incidents":
-		value, err = s.IncidentStore.GetAll(ctx, *qP)
 	case "incidenttypes":
 		value, err = s.IncidentTypeStore.GetAll(ctx, *qP)
+	case "incidents":
+		value, err = s.IncidentStore.GetAll(ctx, *qP)
 	case "users":
 		value, err = s.UserStore.GetAll(ctx, *qP)
 	case "tasks":

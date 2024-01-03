@@ -36,8 +36,8 @@ func TestFinalizeMySql(t *testing.T) {
 		params      *storage.QueryParameter
 		expectedSql string
 	}{
-		{"With WHERE Statement", "SELECT * FROM TEST %s", "incidents", &storage.QueryParameter{Limit: 20, Offset: 0, Query: map[string]string{"id": "123"}}, "SELECT * FROM TEST WHERE incidents.id=123\nLIMIT 20,0;"},
-		{"Without WHERE Statement", "SELECT * FROM TEST %s", "incidents", &storage.QueryParameter{Limit: 20, Offset: 0, Query: map[string]string{}}, "SELECT * FROM TEST LIMIT 20,0;"},
+		{"With WHERE Statement", "SELECT * \nFROM TEST\n %s LIMIT ? OFFSET ?;", "incidents", &storage.QueryParameter{Limit: 20, Offset: 0, Query: map[string]string{"id": "123"}}, "SELECT * \nFROM TEST\n WHERE incidents.id=\"123\" LIMIT ? OFFSET ?;"},
+		{"Without WHERE Statement", "SELECT * \nFROM TEST\n %s LIMIT ? OFFSET ?;", "incidents", &storage.QueryParameter{Limit: 20, Offset: 0, Query: map[string]string{}}, "SELECT * \nFROM TEST\n  LIMIT ? OFFSET ?;"},
 	}
 
 	for _, tC := range finalizeSqlCases {

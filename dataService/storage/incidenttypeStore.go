@@ -17,6 +17,11 @@ type IncidentTypeStore struct {
 }
 
 func NewIncidentTypeStore(storage *MySqlStorage) *IncidentTypeStore {
+	creatTable, err := LoadRawSQL("incidenttypes/CreateTable.sql")
+	if err != nil {
+		panic(err)
+	}
+	storage.Db.Exec(creatTable)
 	return &IncidentTypeStore{
 		storage: storage,
 		db:      storage.Db,

@@ -20,6 +20,11 @@ type UserStore struct {
 }
 
 func NewUserStore(storage *MySqlStorage) *UserStore {
+	creatTable, err := LoadRawSQL("users/CreateTable.sql")
+	if err != nil {
+		panic(err)
+	}
+	storage.Db.Exec(creatTable)
 	return &UserStore{
 		storage: storage,
 		db:      storage.Db,

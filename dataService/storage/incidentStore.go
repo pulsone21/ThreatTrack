@@ -20,6 +20,11 @@ type IncidentStore struct {
 }
 
 func NewIncidentStore(storage *MySqlStorage) *IncidentStore {
+	creatTable, err := LoadRawSQL("incidents/CreateTable.sql")
+	if err != nil {
+		panic(err)
+	}
+	storage.Db.Exec(creatTable)
 	return &IncidentStore{
 		storage: storage,
 		db:      storage.Db,
@@ -100,7 +105,7 @@ func (i *IncidentStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]typ
 		}
 	}
 	finalSql := FinalizeSQL(rawSql, "incidents", qP)
-	rows, err := i.db.Query(finalSql)
+	rows, err := i.db.Query(finalSql, qP.Limit, qP.Offset)
 	if err != nil {
 		return nil, types.InternalServerError(err, uri)
 	}

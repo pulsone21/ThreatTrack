@@ -25,6 +25,11 @@ type TaskStore struct {
 }
 
 func NewTaskStore(storage *MySqlStorage) *TaskStore {
+	creatTable, err := LoadRawSQL("tasks/CreateTable.sql")
+	if err != nil {
+		panic(err)
+	}
+	storage.Db.Exec(creatTable)
 	return &TaskStore{
 		storage: storage,
 		db:      storage.Db,
@@ -86,9 +91,11 @@ func (i *TaskStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]types.T
 	//? maybe a good idea to not give good feedback to make it harder for sql injections?
 	for k, v := range qP.Query {
 		if k == "incident_id" || k == "owner_id" {
+			fmt.Printf("i got %s and it should be an uuid?\n", v)
 			if _, err := uuid.Parse(v); err != nil {
 				return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
 			}
+			continue
 		}
 		if !CheckWhitelist(k, v, whiteList) {
 			return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
@@ -99,7 +106,7 @@ func (i *TaskStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]types.T
 		return nil, types.InternalServerError(err, uri)
 	}
 	finalSql := FinalizeSQL(rawSql, "tasks", qP)
-	rows, err := i.db.Query(finalSql)
+	rows, err := i.db.Query(finalSql, qP.Limit, qP.Offset)
 	if err != nil {
 		return nil, types.InternalServerError(err, uri)
 	}
