@@ -5,6 +5,8 @@ import (
 	"data-service/types"
 	"database/sql"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 type RequestTask struct {
@@ -79,7 +81,45 @@ func (i *TaskStore) GetAll(ctx context.Context, qP QueryParameter) (*[]types.Tas
 }
 
 func (i *TaskStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]types.Task, *types.ApiError) {
-	panic("not implemented") // TODO: Implement
+	uri := ctx.Value("uri").(string)
+	whiteList := i.createWhitelist()
+	//? maybe a good idea to not give good feedback to make it harder for sql injections?
+	for k, v := range qP.Query {
+		if k == "incident_id" || k == "owner_id" {
+			if _, err := uuid.Parse(v); err != nil {
+				return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
+			}
+		}
+		if !CheckWhitelist(k, v, whiteList) {
+			return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
+		}
+	}
+	rawSql, err := LoadRawSQL("tasks/GetQuery.sql")
+	if err != nil {
+		return nil, types.InternalServerError(err, uri)
+	}
+	finalSql := FinalizeSQL(rawSql, "tasks", qP)
+	rows, err := i.db.Query(finalSql)
+	if err != nil {
+		return nil, types.InternalServerError(err, uri)
+	}
+	if rows.Err() != nil {
+		if rows.Err() == sql.ErrNoRows {
+			return nil, types.NotFoundError(fmt.Errorf("no tasks found"), uri)
+		}
+		return nil, types.InternalServerError(rows.Err(), uri)
+	}
+	defer rows.Close()
+	var tasks []types.Task
+	for rows.Next() {
+		var t types.Task
+		err := t.ScanTo(rows.Scan)
+		if err != nil {
+			return nil, types.InternalServerError(rows.Err(), uri)
+		}
+		tasks = append(tasks, t)
+	}
+	return &tasks, nil
 }
 
 func (i *TaskStore) Create(ctx context.Context, task *types.Task) (*types.Task, *types.ApiError) {
@@ -114,9 +154,9 @@ func (i *TaskStore) Delete(ctx context.Context, id string) *types.ApiError {
 }
 
 func (i *TaskStore) createWhitelist() Whitelist {
-	incWhitelist := map[string][]string{
+	taskWhitelist := map[string][]string{
 		"Priority": {string(types.Low), string(types.Medium), string(types.High), string(types.Critical)},
 		"State":    {string(types.Backlog), string(types.Doing), string(types.Review), string(types.Done)},
 	}
-	return incWhitelist
+	return taskWhitelist
 }
