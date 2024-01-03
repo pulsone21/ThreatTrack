@@ -71,23 +71,24 @@ func LoadRawSQL(subpath string) (string, error) {
 }
 
 func FinalizeSQL(rawSql, entity string, queryParam QueryParameter) string {
-	whereClause := "WHERE"
+	whereClause := ""
 	i := 0
 	for k, v := range queryParam.Query {
 		if i > 0 {
-			whereClause = fmt.Sprintf("%s AND %s.%s=%s", whereClause, entity, k, v)
+			whereClause = fmt.Sprintf("%s AND %s.%s=\"%s\"", whereClause, entity, k, v)
 		} else {
-			whereClause = fmt.Sprintf("%s %s.%s=%s", whereClause, entity, k, v)
+			whereClause = fmt.Sprintf("WHERE %s.%s=\"%s\"", entity, k, v)
 		}
 		i++
 	}
-	sqlAddtion := ""
-	if whereClause == "WHERE" {
-		sqlAddtion = fmt.Sprintf("LIMIT %d OFFSET %d;", queryParam.Limit, queryParam.Offset)
-	} else {
-		sqlAddtion = fmt.Sprintf("%s\nLIMIT %d OFFSET %d;", whereClause, queryParam.Limit, queryParam.Offset)
+	if len(whereClause) < 1 {
+		fmt.Println("QueryParams are empty, nothing changed in sql statement")
+		// There is one '%s' in the rawSql, needing to resolve that.
+		return fmt.Sprintf(rawSql, "")
 	}
-	return fmt.Sprintf(rawSql, sqlAddtion)
+	final := fmt.Sprintf(rawSql, whereClause)
+	fmt.Println(final)
+	return final
 }
 
 func CheckWhitelist(key, value string, whitelist Whitelist) bool {
