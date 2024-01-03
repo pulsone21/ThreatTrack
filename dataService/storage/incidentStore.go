@@ -82,6 +82,9 @@ func (i *IncidentStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]typ
 		return nil, types.InternalServerError(err, uri)
 	}
 	whiteList := i.createWhitelist()
+	if whiteList == nil {
+		return nil, types.InternalServerError(fmt.Errorf("couldn't create whitelist for entity"), uri)
+	}
 	for key, val := range qP.Query {
 		if !CheckWhitelist(key, val, whiteList) {
 			return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
