@@ -3,6 +3,7 @@ package types
 import (
 	"context"
 	"net/http"
+	"reflect"
 )
 
 type ApiError struct {
@@ -44,6 +45,10 @@ func NewApiError(status int, uri string, err error) *ApiError {
 }
 
 func NewApiResponse(statusCode int, uri string, data interface{}) *ApiResponse {
+	v := reflect.TypeOf(data).Kind()
+	if v != reflect.Array && v != reflect.Slice {
+		data = []interface{}{data}
+	}
 	return &ApiResponse{
 		StatusCode: statusCode,
 		RequestUrl: uri,
