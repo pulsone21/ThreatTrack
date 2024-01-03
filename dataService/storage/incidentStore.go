@@ -43,6 +43,15 @@ func (i *IncidentStore) Get(ctx context.Context, id string) (*types.Incident, *t
 	if err := inc.ScanTo(res.Scan); err != nil {
 		return nil, types.InternalServerError(err, uri)
 	}
+	// ? We are not joning the tasks from the sql instead we add them here
+	// ? maybe an optimization for later on to do it in the sql, but requieres a rebuild of the scan func
+	qP := DefaultParams()
+	qP.Query["incident_id"] = id
+	tasks, err1 := i.storage.TaskStore.GetQuery(ctx, *qP)
+	if err1 != nil {
+		return nil, err1
+	}
+	inc.Tasks = *tasks
 	return &inc, nil
 }
 
