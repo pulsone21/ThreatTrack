@@ -56,6 +56,10 @@ func (i *IncidentStore) Get(ctx context.Context, id string) (*types.Incident, *t
 	if err1 != nil {
 		return nil, err1
 	}
+	if *tasks == nil {
+		fmt.Println("Tasks are nil, creating empty array")
+		tasks = &[]types.Task{}
+	}
 	inc.Tasks = *tasks
 	return &inc, nil
 }
