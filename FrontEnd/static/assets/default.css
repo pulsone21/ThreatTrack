@@ -296,7 +296,7 @@ td {
 /* Incident Grid Fields */
 .inc-grid {
     display: grid;
-    grid-template-columns: 2% 21% repeat(3, 25%);
+    grid-template-columns: 65px 21% repeat(3, 25%);
     grid-template-rows: 80px 250px 250px repeat(1, 1fr);
     grid-column-gap: 10px;
     grid-row-gap:10px;
@@ -307,7 +307,6 @@ td {
     border: 1px solid var(--col-tert);
     border-radius: 5px;
     padding: 5px 15px;
-
 }
 .inc-header { 
     grid-area: 1 / 1 / 2 / 6; 
@@ -325,6 +324,21 @@ td {
 }
 .inc-buttonbar>div{
     margin: 5px 0px;
+}
+
+.inc-grid-actionbar {
+    padding: 0px !important;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inc-grid-actionbar>button{
+    display: flex;
+    width: 100%;
+    margin: 5px 0px;
+    justify-content: center;
 }
 
 
@@ -346,7 +360,10 @@ td {
 .grid_rs2re6_cs2ce4 { grid-area: 2 / 2 / 6 / 4;} 
 .grid_rs2re6_cs4ce6 { grid-area: 2 / 4 / 6 / 6;}
 .grid_rs4re6_cs1ce2 { grid-area: 4 / 1 / 6 / 2;}
-
+.grid_rs2re6_cs2ce3 {grid-area: 2/2/6/3;}
+.grid_rs2re6_cs3ce4 {grid-area: 2/3/6/4;}
+.grid_rs2re6_cs4ce5 {grid-area: 2/4/6/5;}
+.grid_rs2re6_cs5ce6 {grid-area: 2/5/6/6;}
 
 
 
@@ -494,4 +511,11 @@ textarea {
 
 .verdict-Malicious{
     color:red
+}
+
+.playbook-desc {
+    overflow:hidden;
+    -webkit-line-clamp: 3; 
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
 }
