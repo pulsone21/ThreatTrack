@@ -1,8 +1,8 @@
 package main
 
 import (
-	"data-service/api"
-	"data-service/storage"
+	"dataservice/api"
+	"dataservice/storage"
 	"fmt"
 	"os"
 )

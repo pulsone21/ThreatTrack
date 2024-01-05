@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"data-service/storage"
+	"dataservice/storage"
 	"fmt"
 	"net/url"
 	"testing"

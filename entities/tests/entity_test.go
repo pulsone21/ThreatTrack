@@ -1,9 +1,9 @@
 package tests
 
 import (
-	"data-service/types"
 	"fmt"
 	"testing"
+	"threattrack/entities"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ func createTestStructs(names []string) *[]testStruct {
 
 func TestNewApiResponse(t *testing.T) {
 	ts := createTestStructs([]string{"Hello", "World"})
-	exp1 := types.ApiResponse{
+	exp1 := entities.ApiResponse{
 		StatusCode: 200,
 		RequestUrl: "/test",
 		Data:       *ts,
@@ -38,7 +38,7 @@ func TestNewApiResponse(t *testing.T) {
 
 	t1 := createTestStruct("Hello World")
 	t1s := []testStruct{*t1}
-	exp2 := types.ApiResponse{
+	exp2 := entities.ApiResponse{
 		StatusCode: 200,
 		RequestUrl: "/test",
 		Data:       t1s,
@@ -55,7 +55,7 @@ func TestNewApiResponse(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.name, func(t *testing.T) {
-			res := types.NewApiResponse(tC.statusCode, tC.uri, tC.data)
+			res := entities.NewApiResponse(tC.statusCode, tC.uri, tC.data)
 			actual := fmt.Sprint(res)
 			assert.Equal(t, tC.Expected, actual, fmt.Sprintf("TestCase %s Expected: '%s', Actual: '%s'", tC.name, tC.Expected, actual))
 		})

@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"context"
-	"data-service/storage"
-	"data-service/types"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"dataservice/storage"
+	"threattrack/entities"
 
 	"github.com/gorilla/mux"
 )
@@ -44,7 +45,7 @@ func CreateHandlers(r *mux.Router, s storage.Storage) {
 	task_sR.HandleFunc("/query", newHandleFunc(s.HandleGetQuery)).Methods(http.MethodGet)
 }
 
-func newHandleFunc(apiF types.APIFunction) http.HandlerFunc {
+func newHandleFunc(apiF entities.APIFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, "uri", r.RequestURI)

@@ -1,8 +1,8 @@
 package api
 
 import (
-	"data-service/handlers"
-	"data-service/storage"
+	"dataservice/handlers"
+	"dataservice/storage"
 	"fmt"
 	"net/http"
 

@@ -1,4 +1,4 @@
-package types
+package entities
 
 import "github.com/google/uuid"
 

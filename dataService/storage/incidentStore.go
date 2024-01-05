@@ -2,9 +2,9 @@ package storage
 
 import (
 	"context"
-	"data-service/types"
 	"database/sql"
 	"fmt"
+	"threattrack/entities"
 )
 
 type RequestIncident struct {
@@ -15,7 +15,7 @@ type RequestIncident struct {
 
 type IncidentStore struct {
 	storage *MySqlStorage
-	EntityStore[*types.Incident]
+	EntityStore[*entities.Incident]
 	db *sql.DB
 }
 
@@ -31,22 +31,22 @@ func NewIncidentStore(storage *MySqlStorage) *IncidentStore {
 	}
 }
 
-func (i *IncidentStore) Get(ctx context.Context, id string) (*types.Incident, *types.ApiError) {
+func (i *IncidentStore) Get(ctx context.Context, id string) (*entities.Incident, *entities.ApiError) {
 	uri := ctx.Value("uri").(string)
 	loadedSql, err := LoadRawSQL("incidents/GetById.sql")
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	res := i.db.QueryRow(loadedSql, id)
 	if res.Err() != nil {
 		if res.Err() == sql.ErrNoRows {
-			return nil, types.NotFoundError(fmt.Errorf("no incident found"), uri)
+			return nil, entities.NotFoundError(fmt.Errorf("no incident found"), uri)
 		}
-		return nil, types.InternalServerError(res.Err(), uri)
+		return nil, entities.InternalServerError(res.Err(), uri)
 	}
-	var inc types.Incident
+	var inc entities.Incident
 	if err := inc.ScanTo(res.Scan); err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	// ? We are not joning the tasks from the sql instead we add them here
 	// ? maybe an optimization for later on to do it in the sql, but requieres a rebuild of the scan func
@@ -58,34 +58,35 @@ func (i *IncidentStore) Get(ctx context.Context, id string) (*types.Incident, *t
 	}
 	if *tasks == nil {
 		fmt.Println("Tasks are nil, creating empty array")
-		tasks = &[]types.Task{}
+		tasks = &[]entities.Task{}
 	}
 	inc.Tasks = *tasks
 	return &inc, nil
 }
 
-func (i *IncidentStore) GetAll(ctx context.Context, qP QueryParameter) (*[]types.Incident, *types.ApiError) {
+func (i *IncidentStore) GetAll(ctx context.Context, qP QueryParameter) (*[]entities.Incident, *entities.ApiError) {
 	uri := ctx.Value("uri").(string)
 	loadedSql, err := LoadRawSQL("incidents/GetAll.sql")
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	res, err := i.db.Query(loadedSql, qP.Limit, qP.Offset)
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	if res.Err() != nil {
 		if res.Err() == sql.ErrNoRows {
-			return nil, types.NotFoundError(fmt.Errorf("no incidents found"), uri)
+			return nil, entities.NotFoundError(fmt.Errorf("no incidents found"), uri)
 		}
-		return nil, types.InternalServerError(res.Err(), uri)
+		return nil, entities.InternalServerError(res.Err(), uri)
 	}
 	defer res.Close()
-	incs := []types.Incident{}
+	
+	incs := []entities.Incident{}
 	for res.Next() {
-		var inc types.Incident
+		var inc entities.Incident
 		if err := inc.ScanTo(res.Scan); err != nil {
-			return nil, types.InternalServerError(err, uri)
+			return nil, entities.InternalServerError(err, uri)
 		} else {
 			incs = append(incs, inc)
 		}
@@ -93,72 +94,72 @@ func (i *IncidentStore) GetAll(ctx context.Context, qP QueryParameter) (*[]types
 	return &incs, nil
 }
 
-func (i *IncidentStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]types.Incident, *types.ApiError) {
+func (i *IncidentStore) GetQuery(ctx context.Context, qP QueryParameter) (*[]entities.Incident, *entities.ApiError) {
 	uri := ctx.Value("uri").(string)
 	rawSql, err := LoadRawSQL("incidents/GetQuery.sql")
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	whiteList := i.createWhitelist()
 	if whiteList == nil {
-		return nil, types.InternalServerError(fmt.Errorf("couldn't create whitelist for entity"), uri)
+		return nil, entities.InternalServerError(fmt.Errorf("couldn't create whitelist for entity"), uri)
 	}
 	for key, val := range qP.Query {
 		if !CheckWhitelist(key, val, whiteList) {
-			return nil, types.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
+			return nil, entities.BadRequestError(fmt.Errorf("whitelist check failed"), uri)
 		}
 	}
 	finalSql := FinalizeSQL(rawSql, "incidents", qP)
 	rows, err := i.db.Query(finalSql, qP.Limit, qP.Offset)
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	if rows.Err() != nil {
 		if rows.Err() == sql.ErrNoRows {
-			return nil, types.NotFoundError(fmt.Errorf("no incidents found"), uri)
+			return nil, entities.NotFoundError(fmt.Errorf("no incidents found"), uri)
 		}
-		return nil, types.InternalServerError(rows.Err(), uri)
+		return nil, entities.InternalServerError(rows.Err(), uri)
 	}
 	defer rows.Close()
-	var incs []types.Incident
+	var incs []entities.Incident
 	for rows.Next() {
-		var i types.Incident
+		var i entities.Incident
 		err := i.ScanTo(rows.Scan)
 		if err != nil {
-			return nil, types.InternalServerError(rows.Err(), uri)
+			return nil, entities.InternalServerError(rows.Err(), uri)
 		}
 		incs = append(incs, i)
 	}
 	return &incs, nil
 }
 
-func (i *IncidentStore) Create(ctx context.Context, inc *types.Incident) (*types.Incident, *types.ApiError) {
+func (i *IncidentStore) Create(ctx context.Context, inc *entities.Incident) (*entities.Incident, *entities.ApiError) {
 	fmt.Println("creating new inc from ", inc)
 	uri := ctx.Value("uri").(string)
 	loadedSql, err := LoadRawSQL("incidents/Create.sql")
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	_, err = i.db.Exec(loadedSql, inc.Id, inc.Name, inc.Severity, inc.IncidentType.Id)
 	if err != nil {
-		return nil, types.InternalServerError(err, uri)
+		return nil, entities.InternalServerError(err, uri)
 	}
 	return inc, nil
 }
 
-func (i *IncidentStore) Update(entity types.Incident) (*types.Incident, *types.ApiError) {
+func (i *IncidentStore) Update(entity entities.Incident) (*entities.Incident, *entities.ApiError) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (i *IncidentStore) Delete(ctx context.Context, id string) *types.ApiError {
+func (i *IncidentStore) Delete(ctx context.Context, id string) *entities.ApiError {
 	uri := ctx.Value("uri").(string)
 	loadedSql, err := LoadRawSQL("incidents/Delete.sql")
 	if err != nil {
-		return types.InternalServerError(err, uri)
+		return entities.InternalServerError(err, uri)
 	}
 	_, err = i.db.Exec(loadedSql, id)
 	if err != nil {
-		return types.InternalServerError(err, uri)
+		return entities.InternalServerError(err, uri)
 	}
 	return nil
 }
@@ -178,7 +179,7 @@ func (i *IncidentStore) createWhitelist() Whitelist {
 	iTs := []string{}
 
 	for res.Next() {
-		var iT types.IncidentType
+		var iT entities.IncidentType
 		err = iT.ScanTo(res.Scan)
 		if err != nil {
 			fmt.Println(err)
@@ -187,8 +188,8 @@ func (i *IncidentStore) createWhitelist() Whitelist {
 		iTs = append(iTs, iT.Name)
 	}
 	incWhitelist := map[string][]string{
-		"Severity": {string(types.Low), string(types.Medium), string(types.High), string(types.Critical)},
-		"Status":   {string(types.Pending), string(types.Open), string(types.Active), string(types.Closed)},
+		"Severity": {string(entities.Low), string(entities.Medium), string(entities.High), string(entities.Critical)},
+		"Status":   {string(entities.Pending), string(entities.Open), string(entities.Active), string(entities.Closed)},
 		"Type":     iTs,
 	}
 	return incWhitelist

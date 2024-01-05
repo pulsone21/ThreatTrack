@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"threattrack/entities"
 )
 
 type IncidentHandler struct {
@@ -16,14 +17,7 @@ type IncidentHandler struct {
 }
 
 type incTableViewData struct {
-	Incidents []Incident
-}
-
-type Incident struct {
-	Id           string           `json:"id"`
-	Name         string           `json:"name"`
-	Severity     IncidentSeverity `json:"severity"`
-	IncidentType IncidentType     `json:"type"`
+	Incidents []entities.Incident
 }
 
 type IncidentType struct {
@@ -51,7 +45,7 @@ func (iH *IncidentHandler) createHandles(s *Server) {
 func CreateIncidentHandler(ser *Server, backendBase string) *IncidentHandler {
 	wd, _ := os.Getwd()
 	iH := &IncidentHandler{
-		backendAdress: fmt.Sprintf("%s/incident", backendBase),
+		backendAdress: fmt.Sprintf("%s/incidents", backendBase),
 		templatePath:  "templates/incident",
 	}
 	fmt.Printf("%s/%s\n", wd, iH.templatePath)
@@ -82,14 +76,20 @@ func (iH *IncidentHandler) serveIncidentTable(w http.ResponseWriter, r *http.Req
 		log.Fatalln(err.Error())
 		return err
 	}
-
-	var incs []Incident
-
-	if err = json.Unmarshal(resbody, &incs); err != nil {
+	var data struct {
+		StatusCode int
+		RequestUrl string
+		Data []entities.Incident
+	}
+	fmt.Println("defining the struct")
+	if err = json.Unmarshal(resbody, &data); err != nil {
+		fmt.Println(err.Error())
 		return err
 	}
+	fmt.Println("struct unmarshaled")
+	fmt.Println(data)
 	return tmpl.Execute(w, incTableViewData{
-		Incidents: incs,
+		Incidents: data.Data,
 	})
 }
 
@@ -102,7 +102,7 @@ func (iH *IncidentHandler) serveIncidentPage(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		return err
 	}
-	var inc Incident
+	var inc entities.Incident
 	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func (iH *IncidentHandler) serveIncidentWorklog(w http.ResponseWriter, r *http.R
 	if err != nil {
 		return err
 	}
-	var inc Incident
+	var inc entities.Incident
 	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (iH *IncidentHandler) serveIncidentPlaning(w http.ResponseWriter, r *http.R
 	if err != nil {
 		return err
 	}
-	var inc Incident
+	var inc entities.Incident
 	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (iH *IncidentHandler) serveIncidentiocView(w http.ResponseWriter, r *http.R
 	if err != nil {
 		return err
 	}
-	var inc Incident
+	var inc entities.Incident
 	if err = json.NewDecoder(res.Body).Decode(&inc); err != nil {
 		return err
 	}
