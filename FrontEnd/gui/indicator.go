@@ -54,40 +54,48 @@ func CreateIndicatorHandler(ser *Server, backendBase string) *IndicatorHandler {
 }
 
 func (iH *IndicatorHandler) serveIncidentTable(ctx context.Context, w http.ResponseWriter, r *http.Request) (*entities.ApiResponse,  *entities.ApiError) {
+	uri := ctx.Value("uri").(string)
 	fmt.Printf("\nrequesting backend with %s \n", iH.backendAdress)
 	res, err := http.Get(iH.backendAdress)
 	if err != nil {
 		log.Fatalln(err.Error())
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
 	defer res.Body.Close()
 
+	
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("backend request failed: %v", res.StatusCode)
+		// Handle the Error
+		return nil, entities.InternalServerError(http.ErrAbortHandler, uri)
 	}
+	
 	resbody, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Fatalln(err.Error())
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
 	tmpl, err := template.ParseFiles("./templates/indicatorTable.html")
 	if err != nil {
 		log.Fatalln(err.Error())
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
 	var inds []Indicator
 
 	if err = json.Unmarshal(resbody, &inds); err != nil {
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
 	fmt.Println(inds)
 
-	return tmpl.Execute(w, indTableViewData{
+	if err = tmpl.Execute(w, indTableViewData{
 		Indicators: inds,
-	})
+	}); err != nil {
+		return nil, entities.InternalServerError(err, uri)
+	}
+	return entities.NewApiResponse(200, uri, ""), nil
 }
 
 func (iH *IndicatorHandler) serveIndicatorPage(ctx context.Context, w http.ResponseWriter, r *http.Request) (*entities.ApiResponse,  *entities.ApiError) {
+	uri := ctx.Value("uri").(string)
 	incId := r.URL.Query().Get("id")
 	url := fmt.Sprintf("%s/%s", iH.backendAdress, incId)
 	fmt.Printf("\nrequesting backend with %s \n", url)
@@ -96,19 +104,22 @@ func (iH *IndicatorHandler) serveIndicatorPage(ctx context.Context, w http.Respo
 	if err != nil {
 
 		log.Fatalln(err.Error())
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
 
 	var ind Indicator
 	if err = json.NewDecoder(res.Body).Decode(&ind); err != nil {
 		log.Fatalln(err.Error())
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
 	fmt.Println(ind)
 	tmpl, err := template.ParseFiles("./templates/indicator.html")
 	if err != nil {
 		log.Fatalln(err.Error())
-		return err
+		return nil, entities.InternalServerError(err, uri)
 	}
-	return tmpl.Execute(w, ind)
+	if err = tmpl.Execute(w, ind); err != nil {
+		return nil, entities.InternalServerError(err, uri)
+	}
+	return entities.NewApiResponse(200, uri, ""), nil
 }
