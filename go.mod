@@ -1,4 +1,4 @@
-module threattrack
+module github.com/pulsone21/threattrack
 
 go 1.21.5
 
