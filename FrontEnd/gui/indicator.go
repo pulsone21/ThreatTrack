@@ -1,12 +1,15 @@
 package gui
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"threattrack/entities"
+	"threattrack/utils"
 )
 
 type IndicatorHandler struct {
@@ -38,8 +41,8 @@ const (
 )
 
 func (iH *IndicatorHandler) createHandles(s *Server) {
-	s.Router.HandleFunc("/indicatorTable/", s.createHandleFunc(iH.serveIncidentTable)).Methods("GET")
-	s.Router.HandleFunc("/indicator/", s.createHandleFunc(iH.serveIndicatorPage)).Methods("GET")
+	s.Router.HandleFunc("/indicatorTable/", utils.CreateHandleFunc(iH.serveIncidentTable)).Methods("GET")
+	s.Router.HandleFunc("/indicator/", utils.CreateHandleFunc(iH.serveIndicatorPage)).Methods("GET")
 }
 
 func CreateIndicatorHandler(ser *Server, backendBase string) *IndicatorHandler {
@@ -50,7 +53,7 @@ func CreateIndicatorHandler(ser *Server, backendBase string) *IndicatorHandler {
 	return iH
 }
 
-func (iH *IndicatorHandler) serveIncidentTable(w http.ResponseWriter, r *http.Request) error {
+func (iH *IndicatorHandler) serveIncidentTable(ctx context.Context, w http.ResponseWriter, r *http.Request) (*entities.ApiResponse,  *entities.ApiError) {
 	fmt.Printf("\nrequesting backend with %s \n", iH.backendAdress)
 	res, err := http.Get(iH.backendAdress)
 	if err != nil {
@@ -84,7 +87,7 @@ func (iH *IndicatorHandler) serveIncidentTable(w http.ResponseWriter, r *http.Re
 	})
 }
 
-func (iH *IndicatorHandler) serveIndicatorPage(w http.ResponseWriter, r *http.Request) error {
+func (iH *IndicatorHandler) serveIndicatorPage(ctx context.Context, w http.ResponseWriter, r *http.Request) (*entities.ApiResponse,  *entities.ApiError) {
 	incId := r.URL.Query().Get("id")
 	url := fmt.Sprintf("%s/%s", iH.backendAdress, incId)
 	fmt.Printf("\nrequesting backend with %s \n", url)
