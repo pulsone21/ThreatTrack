@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"dataservice/storage"
-	"threattrack/utils"
 
 	"github.com/gorilla/mux"
+	"github.com/pulsone21/threattrack/utils"
 )
 
 func CreateHandlers(r *mux.Router, s storage.Storage) {

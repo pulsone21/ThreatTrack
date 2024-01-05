@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"threattrack/entities"
+
+	"github.com/pulsone21/threattrack/entities"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"

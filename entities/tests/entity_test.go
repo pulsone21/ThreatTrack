@@ -3,8 +3,8 @@ package tests
 import (
 	"fmt"
 	"testing"
-	"threattrack/entities"
 
+	"github.com/pulsone21/threattrack/entities"
 	"github.com/stretchr/testify/assert"
 )
 

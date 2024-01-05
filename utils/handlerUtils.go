@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"threattrack/entities"
+
+	"github.com/pulsone21/threattrack/entities"
 )
 
 

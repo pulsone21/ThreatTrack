@@ -8,8 +8,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"threattrack/entities"
-	"threattrack/utils"
+
+	"github.com/pulsone21/threattrack/entities"
+	"github.com/pulsone21/threattrack/utils"
 )
 
 type IndicatorHandler struct {

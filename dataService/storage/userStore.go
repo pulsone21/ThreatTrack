@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"threattrack/entities"
+
+	"github.com/pulsone21/threattrack/entities"
 )
 
 type RequestUser struct {

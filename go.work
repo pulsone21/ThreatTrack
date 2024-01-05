@@ -5,5 +5,3 @@ use (
 	./FrontEnd
 	./dataService
 )
-
-replace github.com/pulsone21/threattrack => ../

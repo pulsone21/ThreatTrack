@@ -3,7 +3,8 @@ package storage
 import (
 	"context"
 	"net/http"
-	"threattrack/entities"
+
+	"github.com/pulsone21/threattrack/entities"
 )
 
 type DBConfig struct {
